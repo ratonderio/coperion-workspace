@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v5/PTC/$metadata">
+        <edmx:Include Namespace="PTC" />
+    </edmx:Reference>
+    <edmx:Reference
+        Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v6/PrincipalMgmt/$metadata">
+        <edmx:Include Namespace="PTC.PrincipalMgmt" />
+    </edmx:Reference>
+    <edmx:Reference Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v7/DataAdmin/$metadata">
+        <edmx:Include Namespace="PTC.DataAdmin" />
+    </edmx:Reference>
+    <edmx:Reference Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v7/DocMgmt/$metadata">
+        <edmx:Include Namespace="PTC.DocMgmt" />
+    </edmx:Reference>
+    <edmx:Reference Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v7/ProdMgmt/$metadata">
+        <edmx:Include Namespace="PTC.ProdMgmt" />
+    </edmx:Reference>
+    <edmx:Reference
+        Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v5/CADDocumentMgmt/$metadata">
+        <edmx:Include Namespace="PTC.CADDocumentMgmt" />
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="PTC.SavedSearch">
+            <EntityType Name="SavedQuery">
+                <Key>
+                    <PropertyRef Name="ID" />
+                </Key>
+                <Property Name="CreatedBy" Type="PTC.SavedSearch.CreatedBy">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="CreatedOn" Type="Edm.DateTimeOffset">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="GlobalSavedSearchVisibility" Type="PTC.SavedSearch.Scope">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="ID" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="LastModified" Type="Edm.DateTimeOffset">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Name" Type="Edm.String" Nullable="false" />
+                <Property Name="OwningClient" Type="Edm.String" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>SavedQueries</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <ComplexType Name="CreatedBy">
+                <Property Name="UserID" Type="Edm.String" />
+                <Property Name="Name" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Used for Windchill Saved search CreatedBy attribute which will give the
+                        information of User who creates the Object.</String>
+                </Annotation>
+            </ComplexType>
+            <ComplexType Name="Scope">
+                <Property Name="ContainerID" Type="Edm.String" />
+                <Property Name="Name" Type="Edm.String" />
+                <Property Name="Description" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Used for Windchill Saved Search Scope attribute to show information of
+                        Global scope</String>
+                </Annotation>
+            </ComplexType>
+            <Function Name="GetSelectedTypesFromSavedSearch" IsBound="true">
+                <Parameter Name="SavedSearchID" Type="PTC.SavedSearch.SavedQuery" Nullable="false" />
+                <ReturnType Type="Collection(Edm.String)" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Function to fetch selected types from saved search using saved search ID</String>
+                </Annotation>
+            </Function>
+            <Function Name="ExecuteSavedSearch" IsBound="true">
+                <Parameter Name="SavedSearchID" Type="PTC.SavedSearch.SavedQuery" Nullable="false" />
+                <Parameter Name="Keyword" Type="Edm.String" />
+                <ReturnType Type="Collection(PTC.WindchillEntity)" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Function to execute saved search and get the windchill objects using
+                        saved search ID</String>
+                </Annotation>
+            </Function>
+            <EntityContainer Name="Windchill">
+                <EntitySet Name="SavedQueries" EntityType="PTC.SavedSearch.SavedQuery">
+                    <Annotation Term="PTC.Operations">
+                        <String>READ</String>
+                    </Annotation>
+                </EntitySet>
+            </EntityContainer>
+            <Annotation Term="Core.Description">
+                <String>PTC Saved Search Domain</String>
+            </Annotation>
+            <Annotation Term="Core.SchemaVersion">
+                <String>6</String>
+            </Annotation>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

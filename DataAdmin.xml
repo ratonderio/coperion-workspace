@@ -1,0 +1,570 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v5/PTC/$metadata">
+        <edmx:Include Namespace="PTC" />
+    </edmx:Reference>
+    <edmx:Reference
+        Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v6/PrincipalMgmt/$metadata">
+        <edmx:Include Namespace="PTC.PrincipalMgmt" />
+    </edmx:Reference>
+    <edmx:Reference
+        Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v5/ProdPlatformMgmt/$metadata">
+        <edmx:Include Namespace="PTC.ProdPlatformMgmt" />
+    </edmx:Reference>
+    <edmx:Reference Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v7/ProdMgmt/$metadata">
+        <edmx:Include Namespace="PTC.ProdMgmt" />
+    </edmx:Reference>
+    <edmx:Reference
+        Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v6/DynamicDocMgmt/$metadata">
+        <edmx:Include Namespace="PTC.DynamicDocMgmt" />
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="PTC.DataAdmin">
+            <EntityType Name="ProjectContainer" BaseType="PTC.DataAdmin.Container">
+                <Annotation Term="Core.Description">
+                    <String>This Project extends Container entity</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Container" BaseType="PTC.WindchillEntity">
+                <Property Name="CreatedBy" Type="Edm.String" />
+                <Property Name="Description" Type="Edm.String" />
+                <Property Name="Name" Type="Edm.String" />
+                <Property Name="OrganizationID" Type="PTC.PrincipalMgmt.OrgId" />
+                <Property Name="OrganizationName" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="PrivateAccess" Type="Edm.Boolean" />
+                <NavigationProperty Name="Folders" Type="Collection(PTC.DataAdmin.Folder)"
+                    ContainsTarget="true" />
+                <NavigationProperty Name="Creator" Type="PTC.PrincipalMgmt.User" />
+                <NavigationProperty Name="Organization" Type="PTC.PrincipalMgmt.Organization" />
+                <Annotation Term="Core.Description">
+                    <String>A container</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="LibraryContainer" BaseType="PTC.DataAdmin.Container">
+                <NavigationProperty Name="AssignedOptionSet" Type="PTC.ProdPlatformMgmt.OptionSet">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="OptionPoolAliases"
+                    Type="Collection(PTC.ProdPlatformMgmt.ExpressionAlias)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="OptionPool"
+                    Type="Collection(PTC.ProdPlatformMgmt.OptionPoolItem)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <Annotation Term="Core.Description">
+                    <String>This library extends Container entity</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="FolderContent" BaseType="PTC.WindchillEntity">
+                <Property Name="Description" Type="Edm.String" />
+                <Property Name="Name" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Folder Contents</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="ProductContainer" BaseType="PTC.DataAdmin.Container">
+                <NavigationProperty Name="AssignedOptionSet" Type="PTC.ProdPlatformMgmt.OptionSet">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="OptionPoolAliases"
+                    Type="Collection(PTC.ProdPlatformMgmt.ExpressionAlias)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="OptionPool"
+                    Type="Collection(PTC.ProdPlatformMgmt.OptionPoolItem)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <Annotation Term="Core.Description">
+                    <String>This product extends Container entity</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Folder">
+                <Key>
+                    <PropertyRef Name="ID" />
+                </Key>
+                <Property Name="CreatedOn" Type="Edm.DateTimeOffset">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Description" Type="Edm.String" />
+                <Property Name="ID" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="LastModified" Type="Edm.DateTimeOffset">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Location" Type="Edm.String" />
+                <Property Name="Name" Type="Edm.String" />
+                <NavigationProperty Name="Folders" Type="Collection(PTC.DataAdmin.Folder)"
+                    ContainsTarget="true" />
+                <NavigationProperty Name="Contents" Type="Collection(PTC.DataAdmin.FolderContent)"
+                    ContainsTarget="true">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="FolderContents" Type="Collection(PTC.WindchillEntity)"
+                    ContainsTarget="true">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <Annotation Term="Core.Description">
+                    <String>Folders</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Site" BaseType="PTC.DataAdmin.Container">
+                <Annotation Term="Core.Description">
+                    <String>This site extends Container entity</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="OrganizationContainer" BaseType="PTC.DataAdmin.Container">
+                <Annotation Term="Core.Description">
+                    <String>This organization extends Container entity</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable</String>
+                </Annotation>
+            </EntityType>
+            <ComplexType Name="PropertyDetail">
+                <Property Name="Container" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Entity" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Property" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="DefaultValue" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="LegalValues" Type="Collection(PTC.EnumType)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Constraints" Type="Collection(PTC.DataAdmin.Constraint)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Visibility" Type="PTC.DataAdmin.VisibilityItem">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="DefaultUnits" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Annotation Term="Core.Description">
+                    <String>Property details for constraint list</String>
+                </Annotation>
+            </ComplexType>
+            <ComplexType Name="Constraint">
+                <Property Name="Type" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Value" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="ValueTwo" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Annotation Term="Core.Description">
+                    <String>Constraint type applied to this property</String>
+                </Annotation>
+            </ComplexType>
+            <ComplexType Name="VisibilityItem">
+                <Property Name="Create" Type="Edm.String" />
+                <Property Name="Edit" Type="Edm.String" />
+                <Property Name="EPMUpload" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Describes the visibility for a property</String>
+                </Annotation>
+            </ComplexType>
+            <ComplexType Name="PropertyItem">
+                <Property Name="Name" Type="Edm.String" />
+                <Property Name="Type" Type="Edm.String" />
+                <Property Name="Value" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Describes a single Property for constraints</String>
+                </Annotation>
+            </ComplexType>
+            <ComplexType Name="PropertyList">
+                <Property Name="Items" Type="Collection(PTC.DataAdmin.PropertyItem)" />
+                <Annotation Term="Core.Description">
+                    <String>A list of PropertyItems for constraints</String>
+                </Annotation>
+            </ComplexType>
+            <Function Name="GetDriverProperties" IsBound="true">
+                <Parameter Name="Container" Type="PTC.DataAdmin.Container" Nullable="false" />
+                <Parameter Name="EntityName" Type="Edm.String" Nullable="false" />
+                <ReturnType Type="PTC.DataAdmin.PropertyList" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Function to find the Driver Attributes for a Windchill type</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetConstraints" IsBound="true">
+                <Parameter Name="Container" Type="PTC.DataAdmin.Container" Nullable="false" />
+                <Parameter Name="EntityName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="DriverProperties" Type="PTC.DataAdmin.PropertyList" />
+                <ReturnType Type="Collection(PTC.DataAdmin.PropertyDetail)" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Function to find all the constraints on all properties for a Windchill
+                        type</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetDriverProperties" IsBound="true">
+                <Parameter Name="Container" Type="PTC.DataAdmin.Container" Nullable="false" />
+                <Parameter Name="EntityName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="EntityVersion" Type="Edm.String" Nullable="false" />
+                <ReturnType Type="PTC.DataAdmin.PropertyList" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Function to find the Driver Attributes for a given entity name and
+                        version</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetPregeneratedValue" IsBound="true">
+                <Parameter Name="Container" Type="PTC.DataAdmin.Container" Nullable="false" />
+                <Parameter Name="EntityName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="EntityVersion" Type="Edm.String" Nullable="false" />
+                <Parameter Name="PropertyName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="DriverProperties" Type="PTC.DataAdmin.PropertyList" />
+                <ReturnType Type="Edm.String" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Function to get a pregenerated value (like Number) before an entity is
+                        created</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetConstraints" IsBound="true">
+                <Parameter Name="Container" Type="PTC.DataAdmin.Container" Nullable="false" />
+                <Parameter Name="EntityName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="EntityVersion" Type="Edm.String" Nullable="false" />
+                <Parameter Name="DriverProperties" Type="PTC.DataAdmin.PropertyList" />
+                <ReturnType Type="Collection(PTC.DataAdmin.PropertyDetail)" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Function to find all the constraints on all properties for a given
+                        entity name and version</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetPregeneratedValue" IsBound="true">
+                <Parameter Name="Container" Type="PTC.DataAdmin.Container" Nullable="false" />
+                <Parameter Name="EntityName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="PropertyName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="DriverProperties" Type="PTC.DataAdmin.PropertyList" />
+                <ReturnType Type="Edm.String" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Function to get a pregenerated value (like Number) before an entity is
+                        created</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetConstraints" IsBound="true">
+                <Parameter Name="Container" Type="PTC.DataAdmin.Container" Nullable="false" />
+                <Parameter Name="EntityName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="EntityVersion" Type="Edm.String" Nullable="false" />
+                <Parameter Name="PropertyName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="DriverProperties" Type="PTC.DataAdmin.PropertyList" />
+                <ReturnType Type="PTC.DataAdmin.PropertyDetail" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Function to find all the constraints for a property on a given entity
+                        name and version</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetConstraints" IsBound="true">
+                <Parameter Name="Container" Type="PTC.DataAdmin.Container" Nullable="false" />
+                <Parameter Name="EntityName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="PropertyName" Type="Edm.String" Nullable="false" />
+                <Parameter Name="DriverProperties" Type="PTC.DataAdmin.PropertyList" />
+                <ReturnType Type="PTC.DataAdmin.PropertyDetail" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Function to find all the constraints for a property on a Windchill type</String>
+                </Annotation>
+            </Function>
+            <EntityContainer Name="Windchill">
+                <EntitySet Name="Containers" EntityType="PTC.DataAdmin.Container">
+                    <NavigationPropertyBinding Path="Folders/Contents/PTC.ProdMgmt.PartContent/Part"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/Contents/PTC.ProdMgmt.PartContent/Creator"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <NavigationPropertyBinding
+                        Path="Folders/Contents/PTC.ProdMgmt.PartContent/Modifier"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.PartDescribeLink/Describes"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.PartDescribeLink/DescribedBy"
+                        Target="PTC.DocMgmt.Windchill/Documents" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.EffectivityMgmt.Effectivity/EffectivityContext"
+                        Target="PTC.EffectivityMgmt.Windchill/PartEffectivityContexts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.PartUse/Uses"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.PartUse/UsedBy"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.DynamicDocMgmt.DynamicDocumentReference/References"
+                        Target="PTC.DynamicDocMgmt.Windchill/DynamicDocuments" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.DynamicDocMgmt.DynamicDocumentReference/ReferencedBy"
+                        Target="PTC.DynamicDocMgmt.Windchill/DynamicDocuments" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdPlatformMgmt.ExpressionAlias/Context"
+                        Target="PTC.DataAdmin.Windchill/Containers" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdPlatformMgmt.ExpressionAlias/Creator"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdPlatformMgmt.ExpressionAlias/Modifier"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.CADDocumentMgmt.DerivedSource/SourceCADDocuments"
+                        Target="PTC.CADDocumentMgmt.Windchill/CADDocuments" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.ReplacementPart/Context"
+                        Target="PTC.DataAdmin.Windchill/Containers" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.ReplacementPart/Organization"
+                        Target="PTC.PrincipalMgmt.Windchill/Groups" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/Folders/FolderContents/PTC.ProdPlatformMgmt.IndependentAssignedExpression/Effectivities/EffectivityContext"
+                        Target="PTC.EffectivityMgmt.Windchill/PartEffectivityContexts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdPlatformMgmt.IndependentAssignedExpression/Context"
+                        Target="PTC.DataAdmin.Windchill/Containers" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdPlatformMgmt.IndependentAssignedExpression/Creator"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdPlatformMgmt.IndependentAssignedExpression/Modifier"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.AXLEntry/SourcingContext"
+                        Target="PTC.SupplierMgmt.Windchill/SourcingContexts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.AXLEntry/ManufacturerPartReference"
+                        Target="PTC.ProdMgmt.Windchill/ManufacturerParts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.AXLEntry/VendorPartReference"
+                        Target="PTC.ProdMgmt.Windchill/VendorParts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.AXLEntry/OEMPartReference"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdPlatformMgmt.ModuleVariantInformationLink/LinkedTo"
+                        Target="PTC.ProdPlatformMgmt.Windchill/VariantSpecifications" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdPlatformMgmt.ModuleVariantInformationLink/LinkedFrom"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.PartSubstituteLink/SubstitutePart"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/Folders/FolderContents/PTC.ProdMgmt.PartSubstituteLink/Substitute/Context"
+                        Target="Containers" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/Folders/FolderContents/PTC.ProdMgmt.PartSubstituteLink/Substitute/Organization"
+                        Target="PTC.PrincipalMgmt.Windchill/Groups" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/Folders/FolderContents/PTC.ProdMgmt.PartSubstituteLink/SubstituteFor/Uses"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/Folders/FolderContents/PTC.ProdMgmt.PartSubstituteLink/SubstituteFor/UsedBy"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.PartContent/Part"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.PartContent/Creator"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.PartContent/Modifier"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.DynamicDocMgmt.DynamicDocumentMember/Uses"
+                        Target="PTC.DynamicDocMgmt.Windchill/DynamicDocuments" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.DynamicDocMgmt.DynamicDocumentMember/UsedBy"
+                        Target="PTC.DynamicDocMgmt.Windchill/DynamicDocuments" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/PTC.ProdMgmt.PartAlternateLink/AlternatePart"
+                        Target="PTC.ProdMgmt.Windchill/Parts" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/Folders/FolderContents/PTC.ProdMgmt.PartAlternateLink/Alternate/Context"
+                        Target="Containers" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/Folders/FolderContents/PTC.ProdMgmt.PartAlternateLink/Alternate/Organization"
+                        Target="PTC.PrincipalMgmt.Windchill/Groups" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/Folders/FolderContents/PTC.ProdMgmt.PartAlternateLink/AlternateFor/Context"
+                        Target="Containers" />
+                    <NavigationPropertyBinding
+                        Path="Folders/FolderContents/Folders/FolderContents/PTC.ProdMgmt.PartAlternateLink/AlternateFor/Organization"
+                        Target="PTC.PrincipalMgmt.Windchill/Groups" />
+                    <NavigationPropertyBinding Path="Creator"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <NavigationPropertyBinding Path="Organization"
+                        Target="PTC.PrincipalMgmt.Windchill/Groups" />
+                    <NavigationPropertyBinding
+                        Path="PTC.DataAdmin.ProductContainer/AssignedOptionSet"
+                        Target="PTC.ProdPlatformMgmt.Windchill/OptionSets" />
+                    <NavigationPropertyBinding
+                        Path="PTC.DataAdmin.LibraryContainer/AssignedOptionSet"
+                        Target="PTC.ProdPlatformMgmt.Windchill/OptionSets" />
+                    <Annotation Term="PTC.Operations">
+                        <String>READ</String>
+                    </Annotation>
+                </EntitySet>
+            </EntityContainer>
+            <Annotation Term="Core.Description">
+                <String>PTC Data Administration domain</String>
+            </Annotation>
+            <Annotation Term="Core.SchemaVersion">
+                <String>7</String>
+            </Annotation>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
