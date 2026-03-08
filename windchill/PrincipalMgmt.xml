@@ -1,0 +1,207 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v5/PTC/$metadata">
+        <edmx:Include Namespace="PTC" />
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="PTC.PrincipalMgmt">
+            <EntityType Name="Organization" BaseType="PTC.PrincipalMgmt.Group">
+                <Property Name="BusinessClassification" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="ConferencingID" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="ConferencingURL" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="InternetDomain" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="OrganizationID" Type="PTC.PrincipalMgmt.OrgId">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="PostalAddress" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="WebSite" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Annotation Term="Core.Description">
+                    <String>Organizations</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="LicenseGroup" BaseType="PTC.PrincipalMgmt.Group">
+                <Annotation Term="Core.Description">
+                    <String>LicenseGroups</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="User" BaseType="PTC.PrincipalMgmt.Principal">
+                <Property Name="AllowLDAPSynchronization" Type="Edm.Boolean" />
+                <Property Name="AlternateUserName1" Type="Edm.String" />
+                <Property Name="AlternateUserName2" Type="Edm.String" />
+                <Property Name="AlternateUserName3" Type="Edm.String" />
+                <Property Name="AlternateUserName4" Type="Edm.String" />
+                <Property Name="EMail" Type="Edm.String" />
+                <Property Name="FaxNumber" Type="Edm.String" />
+                <Property Name="FullName" Type="Edm.String" />
+                <Property Name="LastName" Type="Edm.String" />
+                <Property Name="MobilePhoneNumber" Type="Edm.String" />
+                <Property Name="OrganizationName" Type="Edm.String" />
+                <Property Name="PersonalCabinetDomain" Type="Edm.String" />
+                <Property Name="PostalAddress" Type="Edm.String" />
+                <Property Name="TelephoneNumber" Type="Edm.String" />
+                <Property Name="UserDomain" Type="Edm.String" />
+                <Property Name="UserPreferredLanguage" Type="Edm.String" />
+                <Property Name="WebSite" Type="Edm.String" />
+                <NavigationProperty Name="Groups" Type="Collection(PTC.PrincipalMgmt.Group)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="LicenseGroups"
+                    Type="Collection(PTC.PrincipalMgmt.LicenseGroup)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <Annotation Term="Core.Description">
+                    <String>Users</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Principal" BaseType="PTC.WindchillEntity">
+                <Property Name="DistinguishedName" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Identity" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Name" Type="Edm.String" />
+                <Property Name="Status" Type="PTC.EnumType">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Annotation Term="Core.Description">
+                    <String>Principals</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Group" BaseType="PTC.PrincipalMgmt.Principal">
+                <Property Name="Description" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="DomainName" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <NavigationProperty Name="Users" Type="Collection(PTC.PrincipalMgmt.User)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <Annotation Term="Core.Description">
+                    <String>Groups</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <ComplexType Name="OrgId">
+                <Property Name="CodingSystem" Type="Edm.String" />
+                <Property Name="UniqueIdentifier" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Organization identifier</String>
+                </Annotation>
+            </ComplexType>
+            <EntityContainer Name="Windchill">
+                <EntitySet Name="Principals" EntityType="PTC.PrincipalMgmt.Principal">
+                    <Annotation Term="Org.OData.Capabilities.V1.FilterRestrictions">
+                        <Record>
+                            <PropertyValue Property="NonFilterableProperties">
+                                <Collection>
+                                    <PropertyPath>DistinguishedName</PropertyPath>
+                                    <PropertyPath>Identity</PropertyPath>
+                                </Collection>
+                            </PropertyValue>
+                        </Record>
+                    </Annotation>
+                    <Annotation Term="PTC.Operations">
+                        <String>READ</String>
+                    </Annotation>
+                </EntitySet>
+                <EntitySet Name="Users" EntityType="PTC.PrincipalMgmt.User">
+                    <NavigationPropertyBinding Path="Groups" Target="Groups" />
+                    <NavigationPropertyBinding Path="LicenseGroups" Target="LicenseGroups" />
+                    <Annotation Term="Org.OData.Capabilities.V1.FilterRestrictions">
+                        <Record>
+                            <PropertyValue Property="NonFilterableProperties">
+                                <Collection>
+                                    <PropertyPath>PostalAddress</PropertyPath>
+                                    <PropertyPath>AllowLDAPSynchronization</PropertyPath>
+                                    <PropertyPath>FaxNumber</PropertyPath>
+                                    <PropertyPath>WebSite</PropertyPath>
+                                    <PropertyPath>AlternateUserName4</PropertyPath>
+                                    <PropertyPath>LastName</PropertyPath>
+                                    <PropertyPath>AlternateUserName3</PropertyPath>
+                                    <PropertyPath>TelephoneNumber</PropertyPath>
+                                    <PropertyPath>AlternateUserName2</PropertyPath>
+                                    <PropertyPath>MobilePhoneNumber</PropertyPath>
+                                    <PropertyPath>AlternateUserName1</PropertyPath>
+                                </Collection>
+                            </PropertyValue>
+                        </Record>
+                    </Annotation>
+                    <Annotation Term="Org.OData.Capabilities.V1.SortRestrictions">
+                        <Record>
+                            <PropertyValue Property="NonSortableProperties">
+                                <Collection>
+                                    <PropertyPath>PostalAddress</PropertyPath>
+                                    <PropertyPath>FaxNumber</PropertyPath>
+                                    <PropertyPath>WebSite</PropertyPath>
+                                    <PropertyPath>AlternateUserName4</PropertyPath>
+                                    <PropertyPath>AlternateUserName3</PropertyPath>
+                                    <PropertyPath>TelephoneNumber</PropertyPath>
+                                    <PropertyPath>AlternateUserName2</PropertyPath>
+                                    <PropertyPath>MobilePhoneNumber</PropertyPath>
+                                    <PropertyPath>AlternateUserName1</PropertyPath>
+                                </Collection>
+                            </PropertyValue>
+                        </Record>
+                    </Annotation>
+                    <Annotation Term="PTC.Operations">
+                        <String>READ</String>
+                    </Annotation>
+                </EntitySet>
+                <EntitySet Name="LicenseGroups" EntityType="PTC.PrincipalMgmt.LicenseGroup">
+                    <Annotation Term="PTC.Operations">
+                        <String>READ</String>
+                    </Annotation>
+                </EntitySet>
+                <EntitySet Name="Groups" EntityType="PTC.PrincipalMgmt.Group">
+                    <NavigationPropertyBinding Path="Users" Target="Users" />
+                    <Annotation Term="Org.OData.Capabilities.V1.FilterRestrictions">
+                        <Record>
+                            <PropertyValue Property="NonFilterableProperties">
+                                <Collection>
+                                    <PropertyPath>DomainName</PropertyPath>
+                                </Collection>
+                            </PropertyValue>
+                        </Record>
+                    </Annotation>
+                    <Annotation Term="PTC.Operations">
+                        <String>READ</String>
+                    </Annotation>
+                </EntitySet>
+            </EntityContainer>
+            <Annotation Term="Core.Description">
+                <String>PTC Principal Management Domain</String>
+            </Annotation>
+            <Annotation Term="Core.SchemaVersion">
+                <String>6</String>
+            </Annotation>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

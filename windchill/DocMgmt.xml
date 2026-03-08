@@ -1,0 +1,1524 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v5/PTC/$metadata">
+        <edmx:Include Namespace="PTC" />
+    </edmx:Reference>
+    <edmx:Reference Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v7/DataAdmin/$metadata">
+        <edmx:Include Namespace="PTC.DataAdmin" />
+    </edmx:Reference>
+    <edmx:Reference
+        Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v6/PrincipalMgmt/$metadata">
+        <edmx:Include Namespace="PTC.PrincipalMgmt" />
+    </edmx:Reference>
+    <edmx:Reference
+        Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v4/Visualization/$metadata">
+        <edmx:Include Namespace="PTC.Visualization" />
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="PTC.DocMgmt">
+            <EntityType Name="EngKnowDoc" BaseType="PTC.DocMgmt.KnowDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.EngKnowDoc</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5Calculations" BaseType="PTC.DocMgmt.PAC5Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5Calculations</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Calc" BaseType="PTC.DocMgmt.KnowDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.Calc</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Agenda" BaseType="PTC.DocMgmt.Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.Agenda</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Minutes" BaseType="PTC.DocMgmt.Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.Minutes</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5CADDocument" BaseType="PTC.DocMgmt.Document">
+                <Property Name="CUSTOMER" Type="Edm.String" />
+                <Property Name="DESCRIPTION" Type="Edm.String" />
+                <Property Name="DOCUMENTCLASSIFICATION" Type="Edm.String" />
+                <Property Name="LINEITEM" Type="Edm.String" />
+                <Property Name="MODELEDBY" Type="Edm.String" />
+                <Property Name="PARTNUMBER" Type="Edm.String" />
+                <Property Name="PROJECTNUMBER" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5CADDocument</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="ReferenceDocument" BaseType="PTC.DocMgmt.Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type com.ptc.ReferenceDocument</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PerformanceSpec" BaseType="PTC.DocMgmt.GovDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.PerformanceSpec</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="ShippingArt" BaseType="PTC.DocMgmt.KnowDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.ShippingArt</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Plan" BaseType="PTC.DocMgmt.Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.Plan</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="General" BaseType="PTC.DocMgmt.Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.General</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Presentation" BaseType="PTC.DocMgmt.Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.Presentation</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5ReferenceDocument" BaseType="PTC.DocMgmt.ReferenceDocument">
+                <Property Name="DESCRIPTION" Type="Edm.String" />
+                <Property Name="DOCUMENTCLASSIFICATION" Type="Edm.String" />
+                <Property Name="PROJECTNUMBER" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5ReferenceDocument</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="ProcessSpec" BaseType="PTC.DocMgmt.GovDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.ProcessSpec</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Document" BaseType="PTC.WindchillEntity">
+                <Property Name="CabinetName" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="ChangeStatus" Type="PTC.Icon">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="CheckOutStatus" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="CheckoutState" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Comments" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="CreatedBy" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Description" Type="Edm.String" />
+                <Property Name="DocTypeName" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="FolderLocation" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="FolderName" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="GeneralStatus" Type="PTC.Icon">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Identity" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Latest" Type="Edm.Boolean">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="LifeCycleTemplateName" Type="Edm.String">
+                    <Annotation Term="Org.OData.Core.V1.Immutable" />
+                </Property>
+                <Property Name="ModifiedBy" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Name" Type="Edm.String" Nullable="false">
+                    <Annotation Term="PTC.UpdateableViaAction">
+                        <String>Property is only updateable via UpdateCommonProperties action</String>
+                    </Annotation>
+                </Property>
+                <Property Name="Number" Type="Edm.String">
+                    <Annotation Term="PTC.UpdateableViaAction">
+                        <String>Property is only updateable via UpdateCommonProperties action</String>
+                    </Annotation>
+                </Property>
+                <Property Name="ObjectType" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="OrganizationName" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Revision" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="ShareStatus" Type="PTC.Icon">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="State" Type="PTC.EnumType">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Title" Type="Edm.String" />
+                <Property Name="TypeIcon" Type="PTC.Icon">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Version" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="VersionID" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="WorkInProgressState" Type="PTC.WorkInProgressType">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <NavigationProperty Name="DocUsageLinks"
+                    Type="Collection(PTC.DocMgmt.DocumentUsageLink)" ContainsTarget="true">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="Context" Type="PTC.DataAdmin.Container" Nullable="false" />
+                <NavigationProperty Name="Organization" Type="PTC.PrincipalMgmt.Organization">
+                    <Annotation Term="PTC.UpdateableViaAction">
+                        <String>Property is updateable via UpdateCommonProperties action</String>
+                    </Annotation>
+                </NavigationProperty>
+                <NavigationProperty Name="Versions" Type="Collection(PTC.DocMgmt.Document)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="PrimaryContent" Type="PTC.ContentItem"
+                    ContainsTarget="true" />
+                <NavigationProperty Name="Thumbnails" Type="Collection(PTC.ContentItem)"
+                    ContainsTarget="true" />
+                <NavigationProperty Name="Creator" Type="PTC.PrincipalMgmt.User">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="Representations"
+                    Type="Collection(PTC.Visualization.Representation)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="SmallThumbnails" Type="Collection(PTC.ContentItem)"
+                    ContainsTarget="true" />
+                <NavigationProperty Name="Folder" Type="PTC.DataAdmin.Folder" />
+                <NavigationProperty Name="Revisions" Type="Collection(PTC.DocMgmt.Document)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="Attachments" Type="Collection(PTC.ContentItem)"
+                    ContainsTarget="true" />
+                <NavigationProperty Name="Modifier" Type="PTC.PrincipalMgmt.User">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <Annotation Term="Core.Description">
+                    <String>Documents</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.MultiOperations">
+                    <String>CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="DocumentUsageLink">
+                <Key>
+                    <PropertyRef Name="ID" />
+                </Key>
+                <Property Name="CreatedOn" Type="Edm.DateTimeOffset">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="ID" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="LastModified" Type="Edm.DateTimeOffset">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="ObjectType" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="StructureOrder" Type="Edm.Int64">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <NavigationProperty Name="DocUsedBy" Type="PTC.DocMgmt.Document">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <NavigationProperty Name="DocUses" Type="PTC.DocMgmt.Document">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <Annotation Term="Core.Description">
+                    <String>Document usage link</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="InterCommData" BaseType="PTC.DocMgmt.Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type com.ptc.InterCommData</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="MaterialSpec" BaseType="PTC.DocMgmt.GovDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.MaterialSpec</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="DataSheet" BaseType="PTC.DocMgmt.KnowDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.DataSheet</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="GovDocument" BaseType="PTC.DocMgmt.Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.CUSTOM.GovDocument</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5Engineering" BaseType="PTC.DocMgmt.PAC5Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5Engineering</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="DocStructure">
+                <Property Name="DocumentID" Type="Edm.String" />
+                <Property Name="DocumentUseID" Type="Edm.String" />
+                <Property Name="HasChildren" Type="Edm.Boolean" />
+                <Property Name="HasUnresolvedObjectsByAccessRights" Type="Edm.Boolean" />
+                <Property Name="TreeId" Type="Edm.String" />
+                <NavigationProperty Name="Document" Type="PTC.DocMgmt.Document" />
+                <NavigationProperty Name="DocumentUse" Type="PTC.DocMgmt.DocumentUse" />
+                <NavigationProperty Name="Structure" Type="Collection(PTC.DocMgmt.DocStructure)"
+                    ContainsTarget="true" />
+                <Annotation Term="Core.Description">
+                    <String>Doc Structure</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="EPLANPDF" BaseType="PTC.DocMgmt.PAC5CADDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.EPLANPDF</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="ColorSpec" BaseType="PTC.DocMgmt.GovDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.ColorSpec</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="NonNativeDrawing" BaseType="PTC.DocMgmt.GovDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.NonNativeDrawing</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5Manual" BaseType="PTC.DocMgmt.PAC5Document">
+                <Property Name="HISTORICNAME" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5Manual</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5Document" BaseType="PTC.DocMgmt.Document">
+                <Property Name="DESCRIPTION" Type="Edm.String" />
+                <Property Name="DOCUMENTCLASSIFICATION" Type="Edm.String" />
+                <Property Name="PROJECTNUMBER" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5Document</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="MfgKnowDoc" BaseType="PTC.DocMgmt.KnowDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.MfgKnowDoc</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Cert" BaseType="PTC.DocMgmt.KnowDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.Cert</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5Microstation" BaseType="PTC.DocMgmt.PAC5CADDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5Microstation</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="SurfaceSpec" BaseType="PTC.DocMgmt.GovDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.SurfaceSpec</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5ELECTRICAL" BaseType="PTC.DocMgmt.PAC5Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5ELECTRICAL</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5Certifications" BaseType="PTC.DocMgmt.PAC5ReferenceDocument">
+                <Property Name="VALIDPERIODEND" Type="Edm.Date" />
+                <Property Name="VALIDPERIODSTART" Type="Edm.Date" />
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5Certifications</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="GeneralCADDocument" BaseType="PTC.DocMgmt.PAC5CADDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.GeneralCADDocument</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="FinishSpec" BaseType="PTC.DocMgmt.GovDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.FinishSpec</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="KnowDocument" BaseType="PTC.DocMgmt.ReferenceDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.CUSTOM.KnowDocument</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="TranslationDocument" BaseType="PTC.DocMgmt.Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type com.ptc.tml.TranslationDocument</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="ArtworkSpec" BaseType="PTC.DocMgmt.GovDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.ArtworkSpec</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="DocumentUse" BaseType="PTC.WindchillEntity">
+                <Property Name="ObjectType" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="StructureOrder" Type="Edm.Int64">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Annotation Term="Core.Description">
+                    <String>Document usage link</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5ChangeManagement" BaseType="PTC.DocMgmt.PAC5Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5ChangeManagement</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="ISO_DOCUMENTS" BaseType="PTC.DocMgmt.Document">
+                <Property Name="DESCRIPTION" Type="Edm.String" />
+                <Property Name="ISO_DOC_CAT" Type="PTC.EnumType">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="ISO_DOC_SUBCAT" Type="PTC.EnumType">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="ISO_LOCATION" Type="PTC.EnumType">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.ISO_DOCUMENTS</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5Manufacturing" BaseType="PTC.DocMgmt.PAC5Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5Manufacturing</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="Manual" BaseType="PTC.DocMgmt.KnowDocument">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type local.spg.PAC5.Manual</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5Quality" BaseType="PTC.DocMgmt.PAC5Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5Quality</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="PAC5DataSheet" BaseType="PTC.DocMgmt.PAC5Document">
+                <Annotation Term="Core.Description">
+                    <String>Generated from type LOCAL.DEFAULT.PAC5DataSheet</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ,CREATE,UPDATE,DELETE</String>
+                </Annotation>
+                <Annotation Term="PTC.Capability">
+                    <String>Notifiable</String>
+                    <Annotation Term="PTC.SchemaChanges">
+                        <Collection>
+                            <Record>
+                                <PropertyValue Property="Kind">
+                                    <EnumMember>DEPRECATED</EnumMember>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <String>Use PTC.Capabilities instead.</String>
+                                </PropertyValue>
+                            </Record>
+                        </Collection>
+                    </Annotation>
+                </Annotation>
+                <Annotation Term="PTC.Capabilities">
+                    <String>Notifiable,Workable</String>
+                </Annotation>
+            </EntityType>
+            <EntityType Name="ContentInfo">
+                <Property Name="StreamId" Type="Edm.Int64" />
+                <Property Name="FileSize" Type="Edm.Int64" />
+                <Property Name="EncodedInfo" Type="Edm.String" />
+                <Property Name="FileName" Type="Edm.String" />
+                <Property Name="MimeType" Type="Edm.String" />
+                <Property Name="PrimaryContent" Type="Edm.Boolean" />
+                <Annotation Term="Core.Description">
+                    <String>Content Info for stage 3 upload</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <Action Name="GetDocStructure" IsBound="true">
+                <Parameter Name="Document" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <ReturnType Type="PTC.DocMgmt.DocStructure" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>Get Structure of the Document.</String>
+                </Annotation>
+            </Action>
+            <Action Name="UploadStage1Action" IsBound="true">
+                <Parameter Name="Document" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <Parameter Name="NoOfFiles" Type="Edm.Int32" Nullable="false" />
+                <Parameter Name="DelegateName" Type="Edm.String" />
+                <ReturnType Type="Collection(PTC.CacheDescriptor)" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>upload stage 1 bound action</String>
+                </Annotation>
+            </Action>
+            <Action Name="UploadStage3Action" IsBound="true">
+                <Parameter Name="Document" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <Parameter Name="ContentInfo" Type="Collection(PTC.DocMgmt.ContentInfo)"
+                    Nullable="false" />
+                <ReturnType Type="Collection(PTC.ApplicationData)" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>upload stage 3 bound action</String>
+                </Annotation>
+            </Action>
+            <Action Name="Revise" IsBound="true">
+                <Parameter Name="versioned" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <Parameter Name="VersionId" Type="Edm.String" />
+                <ReturnType Type="PTC.DocMgmt.Document" Nullable="false" />
+            </Action>
+            <Action Name="ReviseDocuments" IsBound="false">
+                <Parameter Name="Documents" Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+                <ReturnType Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+            </Action>
+            <Action Name="SetState" IsBound="true">
+                <Parameter Name="lifecycleManaged" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <Parameter Name="State" Type="PTC.EnumType" Nullable="false" />
+                <ReturnType Type="PTC.DocMgmt.Document" Nullable="false" />
+            </Action>
+            <Action Name="SetStateDocuments" IsBound="false">
+                <Parameter Name="Documents" Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+                <Parameter Name="State" Type="PTC.EnumType" Nullable="false" />
+                <ReturnType Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+            </Action>
+            <Action Name="CheckIn" IsBound="true">
+                <Parameter Name="workable" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <Parameter Name="CheckInNote" Type="Edm.String" />
+                <Parameter Name="CheckOutNote" Type="Edm.String" />
+                <Parameter Name="KeepCheckedOut" Type="Edm.Boolean" />
+                <ReturnType Type="PTC.DocMgmt.Document" />
+            </Action>
+            <Action Name="CheckOut" IsBound="true">
+                <Parameter Name="workable" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <Parameter Name="CheckOutNote" Type="Edm.String" />
+                <ReturnType Type="PTC.DocMgmt.Document" />
+            </Action>
+            <Action Name="UndoCheckOut" IsBound="true">
+                <Parameter Name="workable" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <ReturnType Type="PTC.DocMgmt.Document" />
+            </Action>
+            <Action Name="CheckOutDocuments" IsBound="false">
+                <Parameter Name="Workables" Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+                <Parameter Name="CheckOutNote" Type="Edm.String" />
+                <ReturnType Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+            </Action>
+            <Action Name="CheckInDocuments" IsBound="false">
+                <Parameter Name="Workables" Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+                <Parameter Name="CheckInNote" Type="Edm.String" />
+                <ReturnType Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+            </Action>
+            <Action Name="UndoCheckOutDocuments" IsBound="false">
+                <Parameter Name="Workables" Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+                <ReturnType Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+            </Action>
+            <Action Name="EditDocumentsSecurityLabels" IsBound="false">
+                <Parameter Name="Documents" Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+                <ReturnType Type="Collection(PTC.DocMgmt.Document)" />
+            </Action>
+            <Action Name="UpdateCommonProperties" IsBound="true">
+                <Parameter Name="Document" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <Parameter Name="Updates" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <ReturnType Type="PTC.DocMgmt.Document" />
+            </Action>
+            <Action Name="DeleteDocuments" IsBound="false">
+                <Parameter Name="Documents" Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+            </Action>
+            <Action Name="CreateDocuments" IsBound="false">
+                <Parameter Name="Documents" Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+                <ReturnType Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+            </Action>
+            <Action Name="UpdateDocuments" IsBound="false">
+                <Parameter Name="Documents" Type="Collection(PTC.DocMgmt.Document)" Nullable="false" />
+                <ReturnType Type="Collection(PTC.DocMgmt.Document)" />
+            </Action>
+            <Function Name="GetLifeCycleTemplate" IsBound="true">
+                <Parameter Name="lifecycleManaged" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <ReturnType Type="PTC.LifeCycleTemplate" Nullable="false" />
+            </Function>
+            <Function Name="GetValidStateTransitions" IsBound="true">
+                <Parameter Name="lifecycleManaged" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <ReturnType Type="PTC.EnumTypeList" Nullable="false" />
+            </Function>
+            <Function Name="IsCheckoutAllowed" IsBound="true">
+                <Parameter Name="workable" Type="PTC.DocMgmt.Document" Nullable="false" />
+                <ReturnType Type="PTC.DocMgmt.Document" />
+            </Function>
+            <EntityContainer Name="Windchill">
+                <EntitySet Name="Documents" EntityType="PTC.DocMgmt.Document">
+                    <NavigationPropertyBinding Path="DocUsageLinks/DocUsedBy" Target="Documents" />
+                    <NavigationPropertyBinding Path="DocUsageLinks/DocUses" Target="Documents" />
+                    <NavigationPropertyBinding Path="Revisions" Target="Documents" />
+                    <NavigationPropertyBinding Path="Versions" Target="Documents" />
+                    <NavigationPropertyBinding Path="Representations"
+                        Target="PTC.Visualization.Windchill/Representations" />
+                    <NavigationPropertyBinding Path="Context"
+                        Target="PTC.DataAdmin.Windchill/Containers" />
+                    <NavigationPropertyBinding Path="Organization"
+                        Target="PTC.PrincipalMgmt.Windchill/Groups" />
+                    <NavigationPropertyBinding Path="Creator"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <NavigationPropertyBinding Path="Modifier"
+                        Target="PTC.PrincipalMgmt.Windchill/Users" />
+                    <Annotation Term="Org.OData.Capabilities.V1.FilterRestrictions">
+                        <Record>
+                            <PropertyValue Property="NonFilterableProperties">
+                                <Collection>
+                                    <PropertyPath>OrganizationName</PropertyPath>
+                                    <PropertyPath>VersionID</PropertyPath>
+                                    <PropertyPath>ChangeStatus</PropertyPath>
+                                    <PropertyPath>WorkInProgressState</PropertyPath>
+                                    <PropertyPath>ShareStatus</PropertyPath>
+                                    <PropertyPath>CheckoutState</PropertyPath>
+                                    <PropertyPath>GeneralStatus</PropertyPath>
+                                    <PropertyPath>ObjectType</PropertyPath>
+                                    <PropertyPath>CheckOutStatus</PropertyPath>
+                                    <PropertyPath>LifeCycleTemplateName</PropertyPath>
+                                    <PropertyPath>Version</PropertyPath>
+                                    <PropertyPath>TypeIcon</PropertyPath>
+                                    <PropertyPath>FolderLocation</PropertyPath>
+                                    <PropertyPath>Identity</PropertyPath>
+                                </Collection>
+                            </PropertyValue>
+                        </Record>
+                    </Annotation>
+                    <Annotation Term="Org.OData.Capabilities.V1.SortRestrictions">
+                        <Record>
+                            <PropertyValue Property="NonSortableProperties">
+                                <Collection>
+                                    <PropertyPath>GeneralStatus</PropertyPath>
+                                    <PropertyPath>OrganizationName</PropertyPath>
+                                    <PropertyPath>VersionID</PropertyPath>
+                                    <PropertyPath>ChangeStatus</PropertyPath>
+                                    <PropertyPath>ObjectType</PropertyPath>
+                                    <PropertyPath>CheckOutStatus</PropertyPath>
+                                    <PropertyPath>Version</PropertyPath>
+                                    <PropertyPath>TypeIcon</PropertyPath>
+                                    <PropertyPath>WorkInProgressState</PropertyPath>
+                                    <PropertyPath>ShareStatus</PropertyPath>
+                                    <PropertyPath>FolderLocation</PropertyPath>
+                                    <PropertyPath>Identity</PropertyPath>
+                                </Collection>
+                            </PropertyValue>
+                        </Record>
+                    </Annotation>
+                    <Annotation Term="PTC.Operations">
+                        <String>READ,CREATE,UPDATE,DELETE</String>
+                    </Annotation>
+                    <Annotation Term="PTC.MultiOperations">
+                        <String>CREATE,UPDATE,DELETE</String>
+                    </Annotation>
+                </EntitySet>
+                <ActionImport Name="ReviseDocuments" Action="PTC.DocMgmt.ReviseDocuments" />
+                <ActionImport Name="SetStateDocuments" Action="PTC.DocMgmt.SetStateDocuments" />
+                <ActionImport Name="CheckOutDocuments" Action="PTC.DocMgmt.CheckOutDocuments" />
+                <ActionImport Name="CheckInDocuments" Action="PTC.DocMgmt.CheckInDocuments" />
+                <ActionImport Name="UndoCheckOutDocuments"
+                    Action="PTC.DocMgmt.UndoCheckOutDocuments" />
+                <ActionImport Name="EditDocumentsSecurityLabels"
+                    Action="PTC.DocMgmt.EditDocumentsSecurityLabels" />
+                <ActionImport Name="DeleteDocuments" Action="PTC.DocMgmt.DeleteDocuments" />
+                <ActionImport Name="CreateDocuments" Action="PTC.DocMgmt.CreateDocuments" />
+                <ActionImport Name="UpdateDocuments" Action="PTC.DocMgmt.UpdateDocuments" />
+            </EntityContainer>
+            <Annotation Term="Core.Description">
+                <String>PTC Document Management Domain</String>
+            </Annotation>
+            <Annotation Term="Core.SchemaVersion">
+                <String>7</String>
+            </Annotation>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

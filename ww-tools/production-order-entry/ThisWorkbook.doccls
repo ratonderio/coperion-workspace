@@ -1,0 +1,101 @@
+﻿Private Sub Workbook_BeforeClose(Cancel As Boolean)
+    
+End Sub
+
+Private Sub Workbook_Open()
+    thisUser = Environ("Username")
+    
+    WW_Pesonnel_Info.Range("A2:H50").ClearContents
+    
+    Set oCon = New ADODB.Connection
+    Set oRS = New ADODB.Recordset
+    
+    'Connect to PAC1CPE Database
+    oCon.ConnectionString = databaseConnectionString
+    oCon.Open
+    
+    'Set Recordset Connection
+    oRS.ActiveConnection = oCon
+    
+    'Mechanical Engineers to Sheet7_Cell("A")
+    oRS.Source = "Select WW_Initials, WW_Name, WW_First_Name, WW_Email FROM PAC1CPE.dbo.WW_Prod_Eng_Names WHERE WW_Active = 'Y' AND WW_Department = 'ME' ORDER BY WW_Initials;"
+    oRS.Open
+    WW_Pesonnel_Info.Range("A2").CopyFromRecordset oRS
+    oRS.Close
+    
+    'Process Controls to Sheet7_Cell("E")
+    oRS.Source = "Select WW_Initials, WW_Name, WW_First_Name, WW_Email FROM PAC1CPE.dbo.WW_Prod_Eng_Names WHERE WW_Active = 'Y' AND WW_Department = 'PC' ORDER BY WW_Initials;"
+    oRS.Open
+    WW_Pesonnel_Info.Range("E2").CopyFromRecordset oRS
+    oRS.Close
+    
+    'Production Schedulers to Sheet7_Cell("I")
+    oRS.Source = "Select WW_Initials, WW_Name, WW_First_Name, WW_Email FROM PAC1CPE.dbo.WW_Prod_Eng_Names WHERE WW_Active = 'Y' AND WW_Department = 'PS' ORDER BY WW_Initials;"
+    oRS.Open
+    WW_Pesonnel_Info.Range("I2").CopyFromRecordset oRS
+    oRS.Close
+    
+    Dim meLastRow As Long: meLastRow = WW_Pesonnel_Info.Cells(Rows.Count, "A").End(xlUp).Row
+    Dim meWorkingRange As String: meWorkingRange = "=WW_Personnel_Info!$A$2:$A$" & meLastRow
+    
+    Dim pcLastRow As Long: pcLastRow = WW_Pesonnel_Info.Cells(Rows.Count, "E").End(xlUp).Row
+    Dim pcWorkingRange As String: pcWorkingRange = "=WW_Personnel_Info!$E$2:$E$" & pcLastRow
+    
+    Dim psLastRow As Long: psLastRow = WW_Pesonnel_Info.Cells(Rows.Count, "J").End(xlUp).Row
+    Dim psWorkingRange As String: psWorkingRange = "=WW_Personnel_Info!$J$2:$J$" & psLastRow
+
+    With New_OrderWS.Range("B15").Validation
+        .Delete
+        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+             xlBetween, Formula1:=meWorkingRange
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .InputTitle = ""
+        .ErrorTitle = ""
+        .InputMessage = ""
+        .ErrorMessage = ""
+        .ShowInput = True
+        .ShowError = True
+    End With
+    
+    With New_OrderWS.Range("B13").Validation
+        .Delete
+        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+             xlBetween, Formula1:=pcWorkingRange
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .InputTitle = ""
+        .ErrorTitle = ""
+        .InputMessage = ""
+        .ErrorMessage = ""
+        .ShowInput = True
+        .ShowError = True
+    End With
+    
+    With New_OrderWS.Range("K5").Validation
+        .Delete
+        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+             xlBetween, Formula1:=psWorkingRange
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .InputTitle = ""
+        .ErrorTitle = ""
+        .InputMessage = ""
+        .ErrorMessage = ""
+        .ShowInput = True
+        .ShowError = True
+    End With
+    
+    'Close connection
+    oCon.Close
+    
+    'Set null
+    Set oCon = Nothing
+    Set oRS = Nothing
+    
+    
+    Call Insert_SAP_Data
+    New_OrderWS.Activate
+    
+End Sub
+

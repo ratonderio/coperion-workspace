@@ -1,0 +1,86 @@
+﻿Sub SaveOrderReviewForm()
+    Dim oDoc As Document
+    Dim oCC As ContentControl
+    Dim sOrderNumber As String
+    Dim bFound As Boolean
+    
+    ' Path building variables
+    Dim sRootPath As String
+    Dim sLevel1 As String
+    Dim sLevel2 As String
+    Dim sLevel3 As String
+    Dim sBaseFileName As String
+    
+    Set oDoc = ActiveDocument
+    bFound = False
+
+    ' 1. Retrieve the Order Number
+    For Each oCC In oDoc.ContentControls
+        If oCC.Title = "OrderNo" Then
+            ' Using Trim instead of Str() to avoid the leading space issue
+            ' that required the Mid() function in your original code.
+            sOrderNumber = Trim(oCC.Range.Text)
+            bFound = True
+            Exit For
+        End If
+    Next oCC
+
+    ' Validate we actually found an order number before proceeding
+    If Not bFound Or sOrderNumber = "" Then
+        MsgBox "The 'OrderNo' Content Control was not found or is empty.", vbExclamation, "Missing Data"
+        GoTo CleanUp
+    End If
+
+    ' 2. Define the Directory Structure
+    sRootPath = "\\uswwq-p-fs01.cps.local\orders\Common Files\CPE\Temporary_Order_Files"
+    sLevel1 = sRootPath & "\" & sOrderNumber
+    sLevel2 = sLevel1 & "\" & sOrderNumber
+    sLevel3 = sLevel2 & "\" & sOrderNumber & "E"
+
+    ' 3. Sequentially Build Directories
+    ' We only trap errors here to catch actual file system permission/network drops.
+    On Error GoTo Err_FileSystem
+    
+    ' The Dir function with vbDirectory checks if the folder exists.
+    ' If it returns an empty string, the folder is missing, and we make it.
+    If Dir(sLevel1, vbDirectory) = "" Then MkDir sLevel1
+    If Dir(sLevel2, vbDirectory) = "" Then MkDir sLevel2
+    If Dir(sLevel3, vbDirectory) = "" Then MkDir sLevel3
+    
+    On Error GoTo 0 ' Reset error handling for the save process
+
+    ' 4. Save the Files
+    On Error GoTo Err_Save
+    sBaseFileName = sLevel3 & "\OrderReview_" & sOrderNumber & "_EE"
+    
+    ' Save as .docm
+    oDoc.SaveAs2 FileName:=sBaseFileName & ".docm", _
+        FileFormat:=wdFormatXMLDocumentMacroEnabled, _
+        CompatibilityMode:=15
+        
+    ' Export to PDF
+    oDoc.ExportAsFixedFormat _
+        OutputFileName:=sBaseFileName & ".pdf", _
+        ExportFormat:=wdExportFormatPDF, _
+        OpenAfterExport:=False
+        
+    On Error GoTo 0
+
+    ' Success notification
+    MsgBox "Files successfully saved to: " & vbCrLf & sLevel3, vbInformation, "Save Complete"
+
+CleanUp:
+    Set oDoc = Nothing
+    Set oCC = Nothing
+    Exit Sub
+
+' --- Error Handlers ---
+Err_FileSystem:
+    MsgBox "A network or permission error occurred while creating the folders: " & vbCrLf & Err.Description, vbCritical, "Directory Creation Failed"
+    Resume CleanUp
+
+Err_Save:
+    MsgBox "An error occurred while saving the document: " & vbCrLf & Err.Description, vbCritical, "Save Failed"
+    Resume CleanUp
+
+End Sub

@@ -1,0 +1,128 @@
+[
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v4/BACMgmt",
+        "name": "PTC BAC Management Domain",
+        "description": "PTC Business Administrative Change Management Domain",
+        "id": "BACMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v5/CADDocumentMgmt",
+        "name": "PTC CAD Document Management Domain",
+        "description": "PTC CAD Document Management Domain",
+        "id": "CADDocumentMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v8/ChangeMgmt",
+        "name": "PTC Change Management Domain",
+        "description": "PTC Change Management Domain",
+        "id": "ChangeMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v7/DataAdmin",
+        "name": "PTC Data Administration Domain",
+        "description": "PTC Data Administration domain",
+        "id": "DataAdmin"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v7/DocMgmt",
+        "name": "PTC Document Management Domain",
+        "description": "PTC Document Management Domain",
+        "id": "DocMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v6/DynamicDocMgmt",
+        "name": "PTC Dynamic Document Management Domain",
+        "description": "PTC Dynamic Document Management Domain",
+        "id": "DynamicDocMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v5/EffectivityMgmt",
+        "name": "PTC Effectivity Management Domain",
+        "description": "PTC Effectivity Management Domain",
+        "id": "EffectivityMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v5/EventMgmt",
+        "name": "PTC Event Management Domain",
+        "description": "PTC Event Management Domain",
+        "id": "EventMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v1/IE",
+        "name": "PTC IE Domain",
+        "description": "PTC Info*Engine System Domain",
+        "id": "IE"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v5/NavCriteria",
+        "name": "PTC Navigation Criteria",
+        "description": "PTC NavigationCriteria",
+        "id": "NavCriteria"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v5/PDM",
+        "name": "Windchill Domain",
+        "description": "Conglomerate of all PDM domains",
+        "id": "PDM"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v5/PTC",
+        "name": "PTC Common Domain",
+        "description": "PTC Common Domain",
+        "id": "PTC"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v6/PrincipalMgmt",
+        "name": "PTC Principal Management Domain",
+        "description": "PTC Principal Management Domain",
+        "id": "PrincipalMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v7/ProdMgmt",
+        "name": "PTC Product Management Domain",
+        "description": "PTC Product Management Domain",
+        "id": "ProdMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v5/ProdPlatformMgmt",
+        "name": "PTC Product Platform Domain",
+        "description": "Provides basic Options and Variants capabilities",
+        "id": "ProdPlatformMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v4/Reporting",
+        "name": "PTC Reporting Domain",
+        "description": "PTC Reporting Domain",
+        "id": "Reporting"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v6/SavedSearch",
+        "name": "PTC Saved Search Domain",
+        "description": "PTC Saved Search Domain",
+        "id": "SavedSearch"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v4/SupplierMgmt",
+        "name": "PTC Supplier Management Domain",
+        "description": "PTC Supplier Management Domain",
+        "id": "SupplierMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v3/ViewMgmt",
+        "name": "PTC View Management Domain",
+        "description": "PTC View Management Domain",
+        "id": "ViewMgmt"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v4/Visualization",
+        "name": "PTC Visualization Domain",
+        "description": "PTC Visualization Domain",
+        "id": "Visualization"
+    },
+    {
+        "path": "https://windchill.fcpm.biz/Windchill/servlet/odata/v5/Workflow",
+        "name": "PTC Workflow Domain",
+        "description": "PTC Workflow Domain",
+        "id": "Workflow"
+    }
+]

@@ -1,0 +1,47 @@
+﻿Option Explicit
+
+Private Sub Worksheet_Change(ByVal Target As Range)
+    Dim selected_table As String
+    Dim column_index As Long
+    
+    If (Not (Intersect(Target, DevToolsWS.Range("C2")) Is Nothing Or DevToolsWS.Range("C2") = vbNullString)) Then
+        selected_table = Target.Value
+        column_index = Application.Match(selected_table, SQL_TablesWS.Rows(1), 0)
+        
+        If Not IsError(column_index) Then
+        
+            Dim column_names As String
+            Dim row_iter As Long
+            row_iter = 2 ' Start from row 2
+            
+            Do While SQL_TablesWS.Cells(row_iter, column_index).Value <> ""
+                column_names = column_names & SQL_TablesWS.Cells(row_iter, column_index).Value & ","
+                row_iter = row_iter + 1
+            Loop
+            
+            column_names = Left(column_names, Len(column_names) - 1) ' Remove trailing comma
+            
+            update_cell_validation DevToolsWS.Range("E2"), column_names
+            update_cell_validation DevToolsWS.Range("I2"), column_names
+            update_cell_validation DevToolsWS.Range("M2"), column_names
+            
+        End If
+    End If
+End Sub
+
+Private Sub update_cell_validation(input_range As Range, column_list As String)
+
+    input_range.Validation.Delete
+    input_range.Validation.Add xlValidateList, xlValidAlertStop, xlBetween, column_list
+
+End Sub
+
+Sub update_password()
+
+    Dim testin As WW_User
+    
+    Set testin = New WW_User
+    
+    testin
+    
+End Sub

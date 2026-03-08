@@ -1,0 +1,34 @@
+﻿Option Explicit
+'@Folder "__Sheets"
+Private oCon As ADODB.connection
+Private oRs As ADODB.Recordset
+Private thisUser As String
+
+Private Sub Workbook_Open()
+    'Get current username
+    thisUser = Environ$("Username")
+    
+    'Create connection, define connection string and open
+    'Connect to PAC1CPE Database
+    Set oCon = New ADODB.connection
+    oCon.ConnectionString = databaseConnectionString
+    oCon.Open
+    
+    'Set, Open, and Copy Recordset
+    Set oRs = oCon.Execute("Select * FROM PAC1CPE.dbo.WW_Prod_Eng_Names WHERE WW_Active = 'Y' AND WW_Department IN ('ME', 'PC')")
+    ScheduleWS.Range("AF3").Value = thisUser
+    ScheduleWS.Range("AE4").CopyFromRecordset oRs
+    
+    'Close Recordset and Connection, Set to Nothing
+    oRs.Close: Set oRs = Nothing
+    oCon.Close: Set oCon = Nothing
+    
+    'Update user initials (uppercase)
+    ScheduleWS.Range("A2").Value = ScheduleWS.Range("AE3").Value
+    
+    'Update Schedule
+    Order_Query
+    'Update user registry
+    WW_Tools_Lib.update_user_registry False
+    
+End Sub

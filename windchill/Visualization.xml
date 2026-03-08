@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://windchill.fcpm.biz/Windchill/servlet/odata/v5/PTC/$metadata">
+        <edmx:Include Namespace="PTC" />
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="PTC.Visualization">
+            <EntityType Name="Representation">
+                <Key>
+                    <PropertyRef Name="ID" />
+                </Key>
+                <Property Name="AdditionalFiles"
+                    Type="Collection(PTC.Visualization.RepresentationHyperlink)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="BoundingBox" Type="Collection(Edm.Double)" />
+                <Property Name="CreatedOn" Type="Edm.DateTimeOffset">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="CreoViewURL" Type="PTC.Hyperlink">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="DefaultRepresentation" Type="Edm.Boolean" />
+                <Property Name="Description" Type="Edm.String" />
+                <Property Name="FormatName" Type="Edm.String" />
+                <Property Name="HasBoundingBox" Type="Edm.Boolean" />
+                <Property Name="HasOctree" Type="Edm.Boolean" />
+                <Property Name="ID" Type="Edm.String">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="LastModified" Type="Edm.DateTimeOffset">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="Name" Type="Edm.String" />
+                <Property Name="OutOfDate" Type="Edm.Boolean" />
+                <Property Name="ThreeDThumbnailURL" Type="PTC.Visualization.RepresentationHyperlink">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <Property Name="TwoDThumbnailURL" Type="PTC.Visualization.RepresentationHyperlink">
+                    <Annotation Term="PTC.ReadOnly" />
+                </Property>
+                <NavigationProperty Name="AdditionalFilesData"
+                    Type="Collection(PTC.ApplicationData)">
+                    <Annotation Term="PTC.ReadOnly" />
+                </NavigationProperty>
+                <Annotation Term="Core.Description">
+                    <String>Representations</String>
+                </Annotation>
+                <Annotation Term="PTC.Operations">
+                    <String>READ</String>
+                </Annotation>
+            </EntityType>
+            <ComplexType Name="WVSFeature">
+                <Property Name="FeatureName" Type="Edm.String" />
+                <Property Name="FeatureValues" Type="Collection(Edm.String)" />
+                <Annotation Term="Core.Description">
+                    <String>Used to for WVS feature.</String>
+                </Annotation>
+            </ComplexType>
+            <ComplexType Name="RepresentationHyperlink">
+                <Property Name="URL" Type="Edm.String" />
+                <Property Name="Label" Type="Edm.String" />
+                <Property Name="FileSize" Type="Edm.Double" />
+                <Property Name="MimeType" Type="Edm.String" />
+                <Property Name="Format" Type="Edm.String" />
+                <Property Name="ID" Type="Edm.String" />
+                <Property Name="FileName" Type="Edm.String" />
+                <Property Name="LastModified" Type="Edm.DateTimeOffset" />
+                <Property Name="CreatedOn" Type="Edm.DateTimeOffset" />
+                <Property Name="Description" Type="Edm.String" />
+                <Property Name="Comments" Type="Edm.String" />
+                <Annotation Term="Core.Description">
+                    <String>Used to for Windchill Representation Hyperlink.</String>
+                </Annotation>
+            </ComplexType>
+            <Function Name="GetWVSFeatures">
+                <ReturnType Type="Collection(PTC.Visualization.WVSFeature)" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>function to get supported WVS features</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetPVZ" IsBound="true">
+                <Parameter Name="Representation" Type="PTC.Visualization.Representation"
+                    Nullable="false" />
+                <Parameter Name="IncludeAnnotations" Type="Edm.Boolean" Nullable="false" />
+                <ReturnType Type="Edm.Stream" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>A bound function to download the .zip file (pvz file) that can be opened
+                        by CreoView.</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetDynamicStructureRepresentation" IsBound="true">
+                <Parameter Name="Representation" Type="PTC.Visualization.Representation"
+                    Nullable="false" />
+                <ReturnType Type="PTC.Hyperlink" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>A bound function to get download URL for CreoView Dynamic Structure
+                        Representation</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetPVZ" IsBound="true">
+                <Parameter Name="Representation" Type="PTC.Visualization.Representation"
+                    Nullable="false" />
+                <Parameter Name="IncludeAnnotations" Type="Edm.Boolean" Nullable="false" />
+                <Parameter Name="Fidelity" Type="Edm.String" Nullable="false" />
+                <ReturnType Type="Edm.Stream" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>A bound function to download the .zip file for a specific fidelity(pvz
+                        file) that can be opened by CreoView.</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetFidelities" IsBound="true">
+                <Parameter Name="Representation" Type="PTC.Visualization.Representation"
+                    Nullable="false" />
+                <ReturnType Type="Collection(PTC.EnumType)" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>A bound function to return available Fidelities.</String>
+                </Annotation>
+            </Function>
+            <Function Name="GetDynamicStructureRepresentation" IsBound="true">
+                <Parameter Name="Representation" Type="PTC.Visualization.Representation"
+                    Nullable="false" />
+                <Parameter Name="NavigationCriteriaId" Type="Edm.String" Nullable="false" />
+                <ReturnType Type="PTC.Hyperlink" Nullable="false" />
+                <Annotation Term="Core.Description">
+                    <String>A bound function to get download URL for CreoView Dynamic Structure
+                        Representation</String>
+                </Annotation>
+            </Function>
+            <EntityContainer Name="Windchill">
+                <EntitySet Name="Representations" EntityType="PTC.Visualization.Representation">
+                    <Annotation Term="PTC.Operations">
+                        <String>READ</String>
+                    </Annotation>
+                </EntitySet>
+                <FunctionImport Name="GetWVSFeatures" Function="PTC.Visualization.GetWVSFeatures">
+                    <Annotation Term="Core.Description">
+                        <String>function to get supported WVS features</String>
+                    </Annotation>
+                </FunctionImport>
+            </EntityContainer>
+            <Annotation Term="Core.Description">
+                <String>PTC Visualization Domain</String>
+            </Annotation>
+            <Annotation Term="Core.SchemaVersion">
+                <String>4</String>
+            </Annotation>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
