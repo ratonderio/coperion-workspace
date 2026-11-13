@@ -134,7 +134,7 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
     On Error Resume Next
     With OutMail
         .To = "Look up who to send it to via SAP"
-        .CC = "fpm_PAC_EngineeringClerk@coperion.com; brian.schmoldt@coperion.com; " & OtherEngEmail
+        .CC = "fpm_PAC_EngineeringClerk@ktron.com; brian.schmoldt@ktron.com; " & OtherEngEmail
         .BCC = vbNullString
         .Subject = CustName & " PO # " & PONum & " / Coperion Order # " & Ord & " : " & EngType & " Approval Documents"
         .BodyFormat = olFormatHTML
@@ -251,7 +251,7 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     'Remaining Message
     BuildHTML = BuildHTML & "You will receive a separate email confirming your scheduled ship date. If you have any questions or concerns regarding your ship date, please contact:<BR>"
     BuildHTML = BuildHTML & "&bull; Michelle Young: <a href='mailto:michelle.young@ktron.com'>michelle.young@ktron.com</a><BR>"
-    BuildHTML = BuildHTML & "&bull; Staci Voboril: <a href='mailto:stacivoboril@ktron.com'>stacivoboril@ktron.com</a><BR>"
+    BuildHTML = BuildHTML & "&bull; Staci Voboril: <a href='mailto:staci.voboril@ktron.com'>staci.voboril@ktron.com</a><BR>"
     BuildHTML = BuildHTML & "&bull; Customer Service: 800-821-2476"
         
     
@@ -265,7 +265,7 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     On Error Resume Next
     With OutMail
         .To = "Look up who to send it to via SAP"
-        .CC = "fpm_PAC_EngineeringClerk@coperion.com; brian.schmoldt@coperion.com; " & OtherEngEmail
+        .CC = "fpm_PAC_EngineeringClerk@ktron.com; brian.schmoldt@ktron.com; " & OtherEngEmail
         .BCC = vbNullString
         .Subject = CustName & " PO # " & PONum & " / Coperion Order # " & order_number & " : " & EngType & " Certified Documents"
         .BodyFormat = olFormatHTML
@@ -297,8 +297,8 @@ Sub add_coperion_note(ByRef email_text As String)
 End Sub
 
 Sub SendProductionEmail(prodScheduler As String)
-    Dim manufacturingEngineering As String: manufacturingEngineering = "matt.phillips@coperion.com"
-    Dim manufacturing_engineering_backup As String: manufacturing_engineering_backup = "carl.johnson@coperion.com"
+    Dim manufacturingEngineering As String: manufacturingEngineering = "matt.phillips@ktron.com"
+    Dim manufacturing_engineering_backup As String: manufacturing_engineering_backup = "carl.johnson@ktron.com"
     Dim manufacturingEngineeringName As String: manufacturingEngineeringName = "Matt"
     Dim manufacturing_engineering_backup_name As String: manufacturing_engineering_backup_name = "Carl"
     
@@ -335,7 +335,7 @@ Sub SendProductionEmail(prodScheduler As String)
     
     With OutMail
         .To = manufacturingEngineering
-        .CC = "brian.schmoldt@coperion.com"
+        .CC = "brian.schmoldt@ktron.com"
         .Subject = "Production Release for Order #" & Ord & ": " & CustName
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & BuildHTML & Signature & "</body></html>"
@@ -389,7 +389,7 @@ Public Sub ChangeOrderEmail()
     
     On Error Resume Next
     With OutMail
-        .To = "fpm_PAC_EngineeringClerk@coperion.com"
+        .To = "fpm_PAC_EngineeringClerk@ktron.com"
         .Subject = EngineeringType & "CHANGE ORDER: " & UserForm1.orderNumber & " - " & UserForm1.CustomerName
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & HTMLString & "<br>" & Signature & "</body></html>"
@@ -612,10 +612,10 @@ Sub DashboardEmail()
     Dim ManagerName As String
     
     If ScheduleWS.Range("AJ2").Value = "PC" Then
-        ManagerEmail = "nathan.hemman@coperion.com"
+        ManagerEmail = "nathan.hemman@ktron.com"
         ManagerName = "Nathan"
     Else
-        ManagerEmail = "brian.schmoldt@coperion.com"
+        ManagerEmail = "brian.schmoldt@ktron.com"
         ManagerName = "Brian"
     End If
     
@@ -692,7 +692,7 @@ Sub DashboardEmail()
     On Error Resume Next
     With OutMail
         .To = ManagerEmail
-        .CC = "brian.schmoldt@coperion.com"
+        .CC = "brian.schmoldt@ktron.com"
         .BCC = vbNullString
         .Subject = "Dashboard: " & WeeklyNotesWS.Cells(3, 3).Value & " (" & EndSpan & " - " & Date & ")"
         '.Body = strbody

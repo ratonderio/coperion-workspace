@@ -133,8 +133,8 @@ Sub Button1_Click()
     BuildHTML = "<BASEFONT FACE='Calibri, arial, MS Sans Serif'>"
     BuildHTML = BuildHTML & "Order " & OrdNum & " Rev " & RevNum & " has been scheduled and a document has been saved to the R Drive." & "<BR>"
     With OutMail
-        .To = "brian.schmoldt@coperion.com"
-        .CC = "joey.purdon@coperion.com"
+        .To = "brian.schmoldt@ktron.com"
+        .CC = "joey.purdon@ktron.com"
         .BCC = vbNullString
         .Subject = "Order " & OrdNum & " has been Scheduled"
         .HTMLBody = BuildHTML

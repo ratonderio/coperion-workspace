@@ -246,7 +246,7 @@ PressEnter:
         Dim ErrorVar As String: ErrorVar = Err.Number & " - " & Err.Source & " - " & Err.Description & " - " & Err.LastDllError & " - " & Err.HelpContext
         
         With EmailItem
-            .To = "j.purdon@schenckprocess.com"
+            .To = "joey.purdon@ktron.com"
             .Subject = "SAP ERROR"
             .Body = ErrorVar
             .Send

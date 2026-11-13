@@ -995,15 +995,15 @@ Sub SendNew_Email()
     If ((PC_Eng <> "0" And PC_Eng <> "N/A") And (ME_Eng <> "0" And ME_Eng <> "N/A")) Then
         ' Both EE and ME assigned
         EBody = EBody & PC_Eng & " and " & ME_Eng & ",<BR><BR>Please process the attached NEW order notification.<BR><BR>"
-        CcList = "fpm_PAC_EngineeringClerk@coperion.com; joey.purdon@coperion.com; brian.schmoldt@coperion.com; scowen@coperionktron.com"
+        CcList = "fpm_PAC_EngineeringClerk@ktron.com; joey.purdon@ktron.com; brian.schmoldt@ktron.com; scowen@coperionktron.com"
     ElseIf (ME_Eng = "0" Or ME_Eng = "N/A") Then
         ' Only EE assigned (no ME)
         EBody = EBody & PC_Eng & ",<BR><BR>Please process the attached NEW order notification.<BR><BR>"
-        CcList = "fpm_PAC_EngineeringClerk@coperion.com; joey.purdon@coperion.com; brian.schmoldt@coperion.com; scowen@coperionktron.com"
+        CcList = "fpm_PAC_EngineeringClerk@ktron.com; joey.purdon@ktron.com; brian.schmoldt@ktron.com; scowen@coperionktron.com"
     ElseIf (PC_Eng = "0" Or PC_Eng = "N/A") Then
         ' Only ME assigned (no EE)
         EBody = EBody & ME_Eng & ",<BR><BR>Please process the attached NEW order notification.<BR><BR>"
-        CcList = "fpm_PAC_EngineeringClerk@coperion.com; brian.schmoldt@coperion.com; scowen@coperionktron.com"
+        CcList = "fpm_PAC_EngineeringClerk@ktron.com; brian.schmoldt@ktron.com; scowen@coperionktron.com"
     End If
 
     ' Add link to the latest order text document
@@ -1166,10 +1166,10 @@ Sub Send_Change_Order()
 
     If ((PC_Eng <> "0" And PC_Eng <> "N/A") And (ME_Eng <> "0" And ME_Eng <> "N/A")) Then
         EBody = EBody & PC_Eng & " and " & ME_Eng & ",<BR><BR>Please process the attached CHANGE order notification.<BR><BR>"
-        CcList = "joey.purdon@coperion.com"
+        CcList = "joey.purdon@ktron.com"
     ElseIf (ME_Eng = "0" Or ME_Eng = "N/A") Then
         EBody = EBody & PC_Eng & ",<BR><BR>Please process the attached CHANGE order notification.<BR><BR>"
-        CcList = "joey.purdon@coperion.com"
+        CcList = "joey.purdon@ktron.com"
     ElseIf (PC_Eng = "0" Or PC_Eng = "N/A") Then
         EBody = EBody & ME_Eng & ",<BR><BR>Please process the attached CHANGE order notification.<BR><BR>"
         CcList = ""
