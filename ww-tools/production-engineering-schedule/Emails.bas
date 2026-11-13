@@ -96,16 +96,13 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
     If Not oCon Is Nothing Then Set oCon = Nothing
     
     'Greetings
-    BuildHTML = "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, & DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
-    
-    'add_coperion_note BuildHTML
-    
-    ' Adjust greeting based on time of day
-    If Format$(Now, "am/pm") = "am" Then
-        BuildHTML = BuildHTML & "Good Morning,<BR><BR>"
-    Else
-        BuildHTML = BuildHTML & "Good Afternoon,<BR><BR>"
-    End If
+    BuildHTML = "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, &amp; DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
+    BuildHTML = BuildHTML & "<b>K-Tron Equipment Order:</b> " & Ord & "<BR>"
+    BuildHTML = BuildHTML & "<b>Ship To:</b> " & CustName & "<BR>"
+    BuildHTML = BuildHTML & "<b>Current Status:</b> Out for Approval Hold<BR><BR>"
+
+    'Greeting
+    BuildHTML = BuildHTML & "Hello,<BR><BR>"
 
     If hasReminderText Then
         BuildHTML = BuildHTML & "I am following up on the drawing approvals I last sent on " & lastUpdate & ".  " & _
@@ -113,16 +110,20 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
     End If
 
     'Message Text
-    BuildHTML = BuildHTML & "The <u>" & LCase$(EngType) & "</u> approval documents and drawings for your order have been completed " & _
-                                "and are attached to this email. Please review these drawings and return them with any required changes*.<BR><BR>"
-    BuildHTML = BuildHTML & "This email pertains <b><u>only</u></b> to your " & EngType & " approval documents and you may be receiving a similar email " & _
-                                "regarding your " & LCase$(OthEngType) & " approval drawings.<BR>"
-    BuildHTML = BuildHTML & "_______________________________________________________________________________<BR><BR>"
-    BuildHTML = BuildHTML & "This job is currently on an <b>Out for Approval Hold</b> and <u>not scheduled</u> for final shipment.  An official " & _
-                                "<b>Ship Date</b> will be assigned when the Approval process has been completed.  Please note, changes made to the design " & _
-                                "or configuration of any equipment during the approval process may affect the final ship date and result in change order fees.<BR><BR>"
-    BuildHTML = BuildHTML & "<i>*PDF's and/or scanned file mark-ups are preferred, but electronic changes to our drawings are acceptable as long as each change is clearly " & _
-                                "outlined with revision clouds or other distinct markings and notes.</i>"
+    BuildHTML = BuildHTML & "The " & LCase$(EngType) & " approval documents and drawings for your equipment order are ready and attached to this email.<BR>"
+    BuildHTML = BuildHTML & "Please review them and reply with any required changes. (See markup guidelines below.)<BR>"
+    BuildHTML = BuildHTML & "Please note that this email only covers your " & LCase$(EngType) & " drawings. You will receive a separate email for your " & _
+                                LCase$(OthEngType) & " approval documents.<BR><BR>"
+    BuildHTML = BuildHTML & "<b>Project Status &amp; Next Steps</b>"
+    BuildHTML = BuildHTML & "<ul>"
+    BuildHTML = BuildHTML & "<li><b>Current Hold:</b> This order is currently on an <b>Out for Approval Hold</b> and is not yet scheduled for shipment. " & _
+                                "K-Tron will assign an official ship date once the approval process is complete.</li>"
+    BuildHTML = BuildHTML & "<li><b>Change Policy:</b> Any modifications to equipment design or configuration during this review may impact your final " & _
+                                "ship date and may result in change order fees.</li>"
+    BuildHTML = BuildHTML & "<li><b>How to Submit Changes:</b> We prefer mark-ups on a PDF or scanned file. However, we also accept direct electronic edits " & _
+                                "as long as every change is clearly highlighted using revision clouds, distinct markings, and notes.</li>"
+    BuildHTML = BuildHTML & "</ul>"
+    BuildHTML = BuildHTML & "If you have questions, comments, or concerns; please do not hesitate to contact me."
     'Display email
     OutMail.Display
     
@@ -232,16 +233,13 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     BuildHTML = BuildHTML & "<b> Ship To: </b>" & vbTab & CustName & "<BR>"
     BuildHTML = BuildHTML & "<b> Current Status: </b>" & vbTab & "Released to Production<BR><BR>"
     
-    'Greetings
-    If Format$(Now, "am/pm") = "am" Then
-        BuildHTML = BuildHTML & "Good Morning,<BR><BR>"
-    Else
-        BuildHTML = BuildHTML & "Good Afternoon,<BR><BR>"
-    End If
+    'Greeting
+    BuildHTML = BuildHTML & "Hello,<BR><BR>"
 
     'Initial Message
-    BuildHTML = BuildHTML & "Attached are the Coperion " & LCase$(EngType) & " certified drawings for the subject job. No response is needed. Any changes to the design or configuration of the " & _
-                                "order will result in a revised Ship Date and Change Order fees to cover the costs associated with labor, materials, and shipping delays.<BR><BR>"
+    BuildHTML = BuildHTML & "Please find your Coperion " & LCase$(EngType) & " certified drawings attached for the subject job. No response is required.<BR><BR>"
+    BuildHTML = BuildHTML & "Please note that any changes to the design or configuration from this point forward will result in a revised ship date, " & _
+                                "as well as Change Order fees to cover additional labor, materials, and shipping delays.<BR><BR>"
 
     'HyperLink
     Dim TextCode As Double
@@ -251,9 +249,10 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     Next CodeIndex
 
     'Remaining Message
-    BuildHTML = BuildHTML & "A separate email communicating the ship date will be sent to you. If you have any questions or concerns about your scheduled ship date please contact:<BR>"
-    BuildHTML = BuildHTML & "Michelle Young - " & "<a href='mailto:michelle.young@coperion.com'>michelle.young@coperion.com</a> <BR>"
-    BuildHTML = BuildHTML & "Also, you can contact our customer service department at 800-821-2476."
+    BuildHTML = BuildHTML & "You will receive a separate email confirming your scheduled ship date. If you have any questions or concerns regarding your ship date, please contact:<BR>"
+    BuildHTML = BuildHTML & "&bull; Michelle Young: <a href='mailto:michelle.young@ktron.com'>michelle.young@ktron.com</a><BR>"
+    BuildHTML = BuildHTML & "&bull; Staci Voboril: <a href='mailto:stacivoboril@ktron.com'>stacivoboril@ktron.com</a><BR>"
+    BuildHTML = BuildHTML & "&bull; Customer Service: 800-821-2476"
         
     
     With OutMail
