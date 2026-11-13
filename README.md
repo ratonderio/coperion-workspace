@@ -73,6 +73,32 @@ deployed artifact; the exported code is what makes diffs and history usable.
 - Exports from the VBA editor use CRLF line endings; the repo copies are LF.
   Whitespace-only differences of this kind are not real changes.
 
+## Network paths
+
+The shared files now live on a consolidated file server that is mapped as `I:`
+(`I:` = `\\cop.hi.corp\fileserver\CFE\CPS`). Several shares that used to be
+separate servers are now folders under it, for example:
+
+| Old UNC | New location |
+| --- | --- |
+| `\\uswwq-p-fs01.cps.local` | `I:\WWQ-FS01` (`\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01`) |
+
+The old UNC paths still resolve to the same place, so the old names found in
+the code (`\\uswwq-p-fs01.cps.local\...`, `\\USWWQ-P-FS01\...`) keep working for
+now. This looks like redirection set up by IT, not a permanent guarantee. When
+a path stops working, check here first. Prefer the UNC form over the `I:`
+letter in code, because drive letters are mapped per user.
+
+## Email addresses
+
+Addresses are now `first.last@ktron.com`. The shared engineering clerk mailbox
+(`fpm_PAC_EngineeringClerk`) has no ktron.com equivalent yet, so the code still
+uses the coperion.com address, which redirects to the right people. It is
+defined once as `ENGINEERING_CLERK_EMAIL` in `Schedule.bas` and in the order
+entry module, so switching to a ktron.com group later is a one line change per
+workbook. Some addresses also come from the `WW_Prod_Eng_Names` SQL table
+(`WW_Email`), which is outside this repo.
+
 ## Notes
 
 - Several modules contain database connection details as constants. Moving

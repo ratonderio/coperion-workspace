@@ -134,7 +134,7 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
     On Error Resume Next
     With OutMail
         .To = "Look up who to send it to via SAP"
-        .CC = "fpm_PAC_EngineeringClerk@ktron.com; brian.schmoldt@ktron.com; " & OtherEngEmail
+        .CC = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; " & OtherEngEmail
         .BCC = vbNullString
         .Subject = CustName & " PO # " & PONum & " / Coperion Order # " & Ord & " : " & EngType & " Approval Documents"
         .BodyFormat = olFormatHTML
@@ -225,7 +225,6 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     
     'Order Info
     BuildHTML = vbNullString
-    'add_coperion_note BuildHTML
     
     BuildHTML = "<BASEFONT FACE='Calibri, arial, MS Sans Serif'>"
     BuildHTML = BuildHTML & "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, & DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
@@ -265,7 +264,7 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     On Error Resume Next
     With OutMail
         .To = "Look up who to send it to via SAP"
-        .CC = "fpm_PAC_EngineeringClerk@ktron.com; brian.schmoldt@ktron.com; " & OtherEngEmail
+        .CC = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; " & OtherEngEmail
         .BCC = vbNullString
         .Subject = CustName & " PO # " & PONum & " / Coperion Order # " & order_number & " : " & EngType & " Certified Documents"
         .BodyFormat = olFormatHTML
@@ -280,19 +279,6 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     
     Set OutMail = Nothing
     Set OutApp = Nothing
-    
-End Sub
-
-Sub add_coperion_note(ByRef email_text As String)
-
-    email_text = "<BASEFONT FACE='Calibri, Arial, MS Sans Serif'>"
-    email_text = email_text & "<strong>TOGETHER WE MAKE IT WORK- <span style='color: red;'>Coperion FOOD AND PERFORMANCE MATERIALS WILL REBRAND TO COPERION!<br>"
-    email_text = email_text & "Upcoming changes - Important dates:</span></strong><br>"
-    email_text = email_text & "<ul style='color: red;'>"
-    email_text = email_text & "<li>May 13, 2024, our email domain changes to @coperion.com</li>"
-    email_text = email_text & "<li>From May onwards – expect to see branding changes</li>"
-    email_text = email_text & "<li>Further info to follow</li></ul>"
-    email_text = email_text & "<span style='color: red;'>Please see the attached announcement regarding company name and branding changes.</span><br><br><hr><br>"
     
 End Sub
 
@@ -389,7 +375,7 @@ Public Sub ChangeOrderEmail()
     
     On Error Resume Next
     With OutMail
-        .To = "fpm_PAC_EngineeringClerk@ktron.com"
+        .To = ENGINEERING_CLERK_EMAIL
         .Subject = EngineeringType & "CHANGE ORDER: " & UserForm1.orderNumber & " - " & UserForm1.CustomerName
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & HTMLString & "<br>" & Signature & "</body></html>"

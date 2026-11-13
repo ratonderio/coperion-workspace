@@ -64,6 +64,10 @@ Public oRs As ADODB.Recordset
 
 Public Const Path_SAP As String = "W:\Manufacturing\Projects\Data"
 
+'Shared engineering clerk mailbox. The @ktron.com address does not exist yet, so this still uses the
+'coperion.com address, which redirects. Change it here once a ktron.com group is created.
+Public Const ENGINEERING_CLERK_EMAIL As String = "fpm_PAC_EngineeringClerk@coperion.com"
+
 Public Const serverName As String = "USLXA-P-SQL01.cps.local"
 Public Const databaseName As String = "PAC1CPE"
 Public Const dashboardsDatabase As String = "Dashboards"

@@ -132,6 +132,10 @@ Public Const databaseConnectionString As String = "Driver={SQL Server};Server=" 
 '===============================================================================
 ' This is the network share where order folder structures and transmittal templates
 ' are created before being zipped and uploaded into Windchill.
+'Shared engineering clerk mailbox. The @ktron.com address does not exist yet, so this still uses the
+'coperion.com address, which redirects. Change it here once a ktron.com group is created.
+Private Const ENGINEERING_CLERK_EMAIL As String = "fpm_PAC_EngineeringClerk@coperion.com"
+
 Private Const TEMP_ORDER_BASE As String = "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE\Temporary_Order_Files\"
 
 
@@ -1067,15 +1071,15 @@ Sub SendNew_Email()
     If ((PC_Eng <> "0" And PC_Eng <> "N/A") And (ME_Eng <> "0" And ME_Eng <> "N/A")) Then
         ' Both EE and ME assigned
         EBody = EBody & PC_Eng & " and " & ME_Eng & ",<BR><BR>Please process the attached <b>NEW</b> order notification.<BR><BR>"
-        CcList = "fpm_PAC_EngineeringClerk@coperion.com; brian.schmoldt@coperion.com; scowen@coperionktron.com"
+        CcList = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; stephen.cowen@ktron.com"
     ElseIf (ME_Eng = "0" Or ME_Eng = "N/A") Then
         ' Only EE assigned (no ME)
         EBody = EBody & PC_Eng & ",<BR><BR>Please process the attached <b>NEW</b> order notification.<BR><BR>"
-        CcList = "fpm_PAC_EngineeringClerk@coperion.com; brian.schmoldt@coperion.com; scowen@coperionktron.com"
+        CcList = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; stephen.cowen@ktron.com"
     ElseIf (PC_Eng = "0" Or PC_Eng = "N/A") Then
         ' Only ME assigned (no EE)
         EBody = EBody & ME_Eng & ",<BR><BR>Please process the attached <b>NEW</b> order notification.<BR><BR>"
-        CcList = "fpm_PAC_EngineeringClerk@coperion.com; brian.schmoldt@coperion.com; scowen@coperionktron.com"
+        CcList = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; stephen.cowen@ktron.com"
     End If
 
     ' Add link to the latest order text document
@@ -1239,10 +1243,10 @@ Sub Send_Change_Order()
 
     If ((PC_Eng <> "0" And PC_Eng <> "N/A") And (ME_Eng <> "0" And ME_Eng <> "N/A")) Then
         EBody = EBody & PC_Eng & " and " & ME_Eng & ",<BR><BR>Please process the attached <b>CHANGE</b> order notification.<BR><BR>"
-        CcList = "joey.purdon@coperion.com"
+        CcList = "joey.purdon@ktron.com"
     ElseIf (ME_Eng = "0" Or ME_Eng = "N/A") Then
         EBody = EBody & PC_Eng & ",<BR><BR>Please process the attached <b>CHANGE</b> order notification.<BR><BR>"
-        CcList = "joey.purdon@coperion.com"
+        CcList = "joey.purdon@ktron.com"
     ElseIf (PC_Eng = "0" Or PC_Eng = "N/A") Then
         EBody = EBody & ME_Eng & ",<BR><BR>Please process the attached <b>CHANGE</b> order notification.<BR><BR>"
         CcList = ""
