@@ -1,0 +1,9 @@
+# Workbooks are binary and are kept on the network drive, not in the repo.
+# Only the exported VBA (.bas, .cls, .frm/.frx, .doccls) is version controlled.
+*.xlsm
+*.xlsx
+*.xls
+*.xlsb
+*.docm
+*.docx
+*.doc

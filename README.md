@@ -32,10 +32,14 @@ working with Windchill's OData API.
 
 ### `ww-tools/`
 
-Each folder holds the macro-enabled workbook (`.xlsm`/`.docm`) alongside its
-exported VBA: standard modules (`.bas`), class modules (`.cls`), forms
-(`.frm`/`.frx`) and sheet/workbook code (`.doccls`). The workbook is the
-deployed artifact; the exported code is what makes diffs and history usable.
+Each folder holds the exported VBA for one workbook: standard modules (`.bas`),
+class modules (`.cls`), forms (`.frm` with its `.frx`) and sheet/workbook code
+(`.doccls`). The workbooks themselves (`.xlsm`/`.docm`) are not stored here.
+They live on the network drive (see Network paths), and `.gitignore` keeps them
+out of the repo. Worksheet modules with no code are not exported either.
+
+Keep each `.frm` and `.frx` together. A form imported without its `.frx` loses
+its control layout and images.
 
 | Tool | Purpose |
 | --- | --- |
@@ -63,8 +67,15 @@ deployed artifact; the exported code is what makes diffs and history usable.
 
 ## Working with the VBA
 
-- Edit in the VBA editor inside the workbook, then re-export modules into the
-  matching `ww-tools/<tool>/` folder so the repo stays in sync with the workbook.
+- Edit the code in the repo, then update the live workbook: download the repo
+  as a zip, delete the changed modules in the workbook's VBA project, import
+  the matching files from the zip, and save over the file on the network drive.
+  Archive the previous version in the archive folder first.
+- The VBA editor and Rubberduck add `Attribute` header lines when exporting.
+  If code is edited in the workbook instead, re-export it back into
+  `ww-tools/<tool>/` so the repo does not fall behind.
+- `.doccls` files hold sheet and `ThisWorkbook` code. These cannot be imported
+  as new modules; paste their code into the existing sheet module instead.
 - Some modules require references (e.g. Microsoft ActiveX Data Objects 6.1,
   Microsoft VBScript Regular Expressions, Scripting Runtime, Outlook, and the
   SAP GUI Scripting library).
