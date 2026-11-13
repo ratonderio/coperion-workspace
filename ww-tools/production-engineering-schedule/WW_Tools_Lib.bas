@@ -186,7 +186,11 @@ Public Sub get_documents(order_number As String)
     Dim quote_success As Boolean
     Dim order_text_success As Boolean
     
-    download_release_forms order_number, ScheduleWS.Range("AJ2"), prod_release_success, cust_release_success
+    'Folder for this order's documents: "<order number> - <customer name>" in the user's Documents folder
+    Dim order_folder As String: order_folder = get_order_download_folder(order_number)
+
+    'Passing the folder sets the global download_directory used by the downloads below
+    download_release_forms order_number, ScheduleWS.Range("AJ2"), prod_release_success, cust_release_success, order_folder
     download_production_order order_number, prod_eng_order_success
     download_order_review order_number, eng_order_review_success
     download_order_entry order_number, quote_success
@@ -199,8 +203,83 @@ Public Sub get_documents(order_number As String)
     messageText = messageText & "Sales Quote: " & IIf(quote_success, "Success", "Failed") & vbNewLine
     messageText = messageText & "Production Order: " & IIf(prod_eng_order_success, "Success", "Failed") & vbNewLine
     messageText = messageText & "Engineering Order Review: " & IIf(eng_order_review_success, "Success", "Failed") & vbNewLine
-    
+    messageText = messageText & vbNewLine & "Saved to: " & order_folder
+
     MsgBox messageText
+
+End Sub
+
+'Get (and create if needed) the folder that an order's documents are saved to.
+'Format is "<order number> - <customer name>", e.g. "1100102628 - ADJUVANTS LTD".
+'Located in the user's Documents folder; the developer account uses C:\Users\purdon-jos\Documents\Orders
+'Returns the folder path with a trailing backslash
+Public Function get_order_download_folder(ByVal order_number As String) As String
+
+    Dim folder_name As String: folder_name = order_number
+    Dim customer_name As String: customer_name = sanitize_folder_name(get_customer_name(order_number))
+    If LenB(customer_name) > 0 Then folder_name = order_number & " - " & customer_name
+
+    Dim root_folder As String
+    If StrComp(Environ$("USERNAME"), "purdon-jos", vbTextCompare) = 0 Then
+        root_folder = "C:\Users\purdon-jos\Documents\Orders"
+    Else
+        'SpecialFolders follows folder redirection (e.g. OneDrive) so this is the real Documents location
+        root_folder = CreateObject("WScript.Shell").SpecialFolders("MyDocuments")
+    End If
+
+    create_folder_path root_folder & "\" & folder_name
+    get_order_download_folder = root_folder & "\" & folder_name & "\"
+
+End Function
+
+'Customer name for the order from Prod_Eng, or an empty string if it can't be found
+Private Function get_customer_name(ByVal order_number As String) As String
+
+    Dim name_connection As ADODB.connection
+    Dim name_recordset As ADODB.Recordset
+
+    On Error GoTo cleanup
+    Set name_connection = New ADODB.connection
+    name_connection.ConnectionString = PAC1CPE_CONNECTION_STRING
+    name_connection.Open
+    Set name_recordset = name_connection.Execute("SELECT DISTINCT Customer_Name FROM Prod_Eng WHERE Order_Num = '" & _
+                                                 Replace(order_number, "'", "''") & "'")
+    If Not name_recordset.EOF Then get_customer_name = Trim$(name_recordset.Fields(0).Value & vbNullString)
+
+cleanup:
+    On Error Resume Next
+    name_recordset.Close
+    name_connection.Close
+
+End Function
+
+'Replace characters that Windows doesn't allow in folder names and trim trailing dots/spaces
+Private Function sanitize_folder_name(ByVal raw_name As String) As String
+
+    Dim invalid_chars As Variant: invalid_chars = Array("\", "/", ":", "*", "?", """", "<", ">", "|", vbCr, vbLf, vbTab)
+    Dim invalid_char As Variant
+    For Each invalid_char In invalid_chars
+        raw_name = Replace(raw_name, invalid_char, " ")
+    Next invalid_char
+
+    raw_name = Trim$(raw_name)
+    Do While Right$(raw_name, 1) = "."
+        raw_name = Trim$(Left$(raw_name, Len(raw_name) - 1))
+    Loop
+
+    sanitize_folder_name = raw_name
+
+End Function
+
+'Create a folder, creating any missing parent folders first
+Private Sub create_folder_path(ByVal folder_path As String)
+
+    If Dir(folder_path, vbDirectory) <> vbNullString Then Exit Sub
+
+    Dim parent_path As String: parent_path = Left$(folder_path, InStrRev(folder_path, "\") - 1)
+    If Len(parent_path) > 2 Then create_folder_path parent_path
+
+    MkDir folder_path
 
 End Sub
 
@@ -347,10 +426,12 @@ End Function '
 
 'Download customer and production release forms from windchill to WW_User local cache
 'Supply order number and engineer type as either "PC" or "ME"
+'Optionally supply a target directory (with trailing backslash); if omitted the files go to the registry cache
 Public Sub download_release_forms(ByVal order_number As String, _
                                         ByVal eng_type As String, _
                                         Optional ByRef prod_release_success As Boolean = False, _
-                                        Optional ByRef cust_release_success As Boolean)
+                                        Optional ByRef cust_release_success As Boolean, _
+                                        Optional ByVal target_directory As String = vbNullString)
     
     Dim customer_release_filename As String
     Dim production_release_filename As String
@@ -366,11 +447,15 @@ Public Sub download_release_forms(ByVal order_number As String, _
     Dim http_request_string As String
     Dim windchill_order As WindchillObject: Set windchill_order = New WindchillObject
 
-    download_directory = GetSetting("WW_Tools", "Directories", "Local WW Cache")
-    
-    'TODO:This needs to be more robust; probably this will now reference the registry update from WW_User
-    If (Dir(download_directory, vbDirectory) = vbNullString) Then
-        update_user_registry True
+    If LenB(target_directory) > 0 Then
+        download_directory = target_directory
+    Else
+        download_directory = GetSetting("WW_Tools", "Directories", "Local WW Cache")
+
+        'TODO:This needs to be more robust; probably this will now reference the registry update from WW_User
+        If (Dir(download_directory, vbDirectory) = vbNullString) Then
+            update_user_registry True
+        End If
     End If
 
     'Get OID info for the windchill object
