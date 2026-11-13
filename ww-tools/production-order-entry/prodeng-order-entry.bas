@@ -132,6 +132,10 @@ Public Const databaseConnectionString As String = "Driver={SQL Server};Server=" 
 '===============================================================================
 ' This is the network share where order folder structures and transmittal templates
 ' are created before being zipped and uploaded into Windchill.
+'Shared engineering clerk mailbox. The @ktron.com address does not exist yet, so this still uses the
+'coperion.com address, which redirects. Change it here once a ktron.com group is created.
+Private Const ENGINEERING_CLERK_EMAIL As String = "fpm_PAC_EngineeringClerk@coperion.com"
+
 Private Const TEMP_ORDER_BASE As String = "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE\Temporary_Order_Files\"
 
 
@@ -162,7 +166,7 @@ Sub Insert_SAP_Data()
     ' --- LOAD OPEN EQUIPMENT DATA ---
     Open_EquipWS.Range("A1:AB25000").ClearContents
 
-    Workbooks.OpenText Filename:=Path_SAP & "\Open.XLS", Origin:=xlWindows _
+    Workbooks.OpenText filename:=Path_SAP & "\Open.XLS", Origin:=xlWindows _
                             , StartRow:=1, DataType:=xlDelimited, TextQualifier:=xlDoubleQuote, _
                             ConsecutiveDelimiter:=False, Tab:=True, Semicolon:=False, Comma:=False _
                             , Space:=False, Other:=False, FieldInfo:=Array(Array(1, 1), Array(2, 1), _
@@ -179,7 +183,7 @@ Sub Insert_SAP_Data()
     ' --- LOAD PARTS DATA ---
     Open_PartsWS.Range("A1:AB25000").ClearContents
 
-    Workbooks.OpenText Filename:=Path_SAP & "\Parts.XLS", Origin:=xlWindows _
+    Workbooks.OpenText filename:=Path_SAP & "\Parts.XLS", Origin:=xlWindows _
                             , StartRow:=1, DataType:=xlDelimited, TextQualifier:=xlDoubleQuote, _
                             ConsecutiveDelimiter:=False, Tab:=True, Semicolon:=False, Comma:=False _
                             , Space:=False, Other:=False, FieldInfo:=Array(Array(1, 1), Array(2, 1), _
@@ -368,8 +372,8 @@ Sub Print_SAP_Order()
     Dim Session
     ' Search through up to 7 SAP sessions looking for one with "SAP Easy Access" title
     For sessionIdx = 0 To 6
-        If Left(GetObject("SAPGUI").GetScriptingEngine.Children(0).Children(sessionIdx).findById("wnd[0]").Text, 15) = "SAP Easy Access" Then
-            Set Session = GetObject("SAPGUI").GetScriptingEngine.Children(0).Children(sessionIdx)
+        If Left(GetObject("SAPGUI").GetScriptingEngine.Children(0).Children(sessionIdx + 0).findById("wnd[0]").Text, 15) = "SAP Easy Access" Then
+            Set Session = GetObject("SAPGUI").GetScriptingEngine.Children(0).Children(sessionIdx + 0)
             On Error GoTo 0
             Exit For
         End If
@@ -506,58 +510,59 @@ End Sub
 
 
 '===============================================================================
-' SUB: NewOrder2NewDB
-'===============================================================================
-' PURPOSE: Core order entry routine. Inserts a new order (with all line items)
-'          into the Prod_Eng database table, creates the folder structure for
-'          transmittal documents in Temporary_Order_Files, populates Customer
-'          Release Forms and Production Release Forms from templates, and zips
-'          the result for Windchill upload.
+' REFERENCES:
+'   Microsoft Scripting Runtime
+'   Windows Script Host Object Model (used by the helper module)
+'   Existing Microsoft ActiveX Data Objects reference (ADODB.Connection)
+'   Microsoft Excel Object Library
 '
-' PROCESS:
-'   1. Opens a DB connection and reads order details from New_OrderWS
-'   2. For each line item (rows 9+), builds a massive INSERT statement and
-'      executes it against Prod_Eng
-'   3. Creates folder structure:
-'        Temporary_Order_Files\{Ord}\
-'        Temporary_Order_Files\{Ord}\{Ord}\
-'        Temporary_Order_Files\{Ord}\{Ord}\{Ord}M\  (if ME assigned)
-'        Temporary_Order_Files\{Ord}\{Ord}\{Ord}E\  (if PC/EE assigned)
-'   4. Copies and populates template workbooks:
-'        - XXXXXXM.xlsm -> {Ord}M.xlsm (Customer Release - Mechanical)
-'        - XXXXXXE.xlsm -> {Ord}E.xlsm (Customer Release - Electrical)
-'        - F7-113...MR.xlsm -> {Ord}MR.xlsm (Production Transmittal - Mech)
-'        - F7-113...ER.xlsm -> {Ord}ER.xlsm (Production Transmittal - Elec)
-'   5. Moves any incoming design sheets into the ME folder
-'   6. Zips the folder for Windchill upload
-'   7. Clears the order entry form
-'
-' BAD PRACTICES:
-'   [FIXED] Previously used On Error GoTo DeleteDirectory to handle the case
-'       where the top-level folder already existed. The error handler would
-'       DELETE the entire folder tree and resume, losing any files that had
-'       been placed there by earlier pipeline steps. Now uses EnsureFolder()
-'       helper to safely check-and-create.
-'   [SQL INJECTION] The INSERT statement is built entirely via string concatenation.
-'       Apostrophes in customer names are "handled" by replacing them with carets (^),
-'       which corrupts the data. Should use ADODB.Command with parameters.
-'   [ACTION QUERY VIA RECORDSET] The INSERT is executed via oRS.Open instead of
-'       oCon.Execute. This works but is semantically incorrect.
-'   [MAGIC NUMBERS] Every cell reference is a raw row/column number. Named ranges
-'       or constants would make this much easier to maintain.
+' SQL construction and worksheet/output mappings are intentionally retained.
+' Database inserts happen before file generation and are NOT rolled back by
+' this routine. Packaging failure requires a ZIP-only retry, not fresh inserts.
+' Stage/target diagnostics identify the operation that failed. Existing global
+' variables such as Ord and LastRow are retained for workbook compatibility.
 '===============================================================================
 Sub NewOrder2NewDB()
     Dim lineIdx As Long, rowIdx As Long
+    ' Own only the template opened by this invocation. Never close ActiveWorkbook.
+    Dim wbTemplate As Excel.Workbook
+    Dim lockHandle As LongPtr
+    Dim oCon As ADODB.Connection
+    Dim basePath As String, ShtERS As String, failureMessage As String
+    Dim TextCode As Long
+    Dim oldScreen As Boolean, oldAlerts As Boolean
+    Dim stage As String, targetPath As String, insertedLines As Long
+    Dim databaseAttempted As Boolean, errorNumber As Long, errorText As String
+    ' Guard the same Excel instance against button/event re-entry during DoEvents.
+    Static running As Boolean
+    If running Then
+        MsgBox "Order processing is already running in this Excel instance.", vbExclamation
+        Exit Sub
+    End If
+    running = True
+    ' Restore the previous settings, rather than unconditionally forcing True.
+    oldScreen = Application.ScreenUpdating
+    oldAlerts = Application.DisplayAlerts
+    On Error GoTo Failed
     Application.ScreenUpdating = False
     Application.DisplayAlerts = False
 
+    stage = "Read order number"
+    Ord = New_OrderWS.Cells(5, 2).value
+    If Ord <= 0 Then Err.Raise vbObjectError + 2410, "NewOrder2NewDB", "Enter a valid order number."
+    ' Hold this handle across both database entry and document generation.
+    ' The temporary lock is outside the source tree and deletes when released.
+    stage = "Acquire order processing lock"
+    targetPath = TEMP_ORDER_BASE & Ord
+    lockHandle = AcquireOrderProcessingLock(targetPath)
+
     ' Open database connection
-    Dim oCon As ADODB.Connection: Set oCon = New ADODB.Connection
+    Set oCon = New ADODB.Connection
+    stage = "Open database connection"
+    targetPath = databaseName
     oCon.ConnectionString = databaseConnectionString
     oCon.Open
 
-    ' Read the order number from the New Order worksheet
-    Ord = New_OrderWS.Cells(5, 2).value
 
     ' Find the last row with line item data (column F = line numbers)
     LastRow = New_OrderWS.Cells(Rows.Count, 6).End(xlUp).Row
@@ -730,11 +735,18 @@ Sub NewOrder2NewDB()
                     AssyStr & _
                     ")"
         Debug.Print insertSQL
+        stage = "Insert database line " & CStr(lineIdx - 8)
+        targetPath = databaseName & ".Prod_Eng"
+        ' Mark before Execute because an interrupted call may have reached the
+        ' server even if VBA receives an error. The count records confirmed calls.
+        databaseAttempted = True
         oCon.Execute insertSQL
+        insertedLines = insertedLines + 1
 
     Next lineIdx
 
-    If Not oCon Is Nothing Then Set oCon = Nothing
+    oCon.Close
+    Set oCon = Nothing
 
     ' --- CREATE FOLDER STRUCTURE FOR TRANSMITTAL DOCUMENTS ---
 
@@ -743,7 +755,7 @@ Sub NewOrder2NewDB()
     ' Example: Ord = 1100102999 -> digits at positions 5-10 = 1,0,2,9,9,9
     '          TextCode = 2 + 1 + 0 + 2 + 9 + 9 + 9 = 32
     
-    Dim TextCode: TextCode = 2
+    TextCode = 2
     For CodeIndex = 5 To 10
         TextCode = TextCode + Mid(Ord, CodeIndex, 1)
     Next CodeIndex
@@ -762,36 +774,48 @@ Sub NewOrder2NewDB()
     '   before attempting to create it. Existing directories are left untouched,
     '   preserving any files already present.
     '===========================================================================
-    Dim basePath As String
     basePath = TEMP_ORDER_BASE & Ord
 
     ' Create the top-level order folder: Temporary_Order_Files\{Ord}\
-    EnsureFolder basePath
+    stage = "Create order folder"
+    targetPath = basePath
+    EnsureFolder targetPath
 
     ' Create the inner order folder: Temporary_Order_Files\{Ord}\{Ord}\
-    EnsureFolder basePath & "\" & Ord
+    stage = "Create order folder"
+    targetPath = basePath & "\" & Ord
+    EnsureFolder targetPath
 
     ' --- MECHANICAL ENGINEERING (ME) TRANSMITTALS ---
     ' Only create ME folders and templates if an ME engineer is assigned
     If New_OrderWS.Cells(15, 2).value <> "N/A" And New_OrderWS.Cells(15, 2).value <> "" Then
 
         ' Create ME subfolder: ...\{Ord}\{Ord}\{Ord}M\
-        EnsureFolder basePath & "\" & Ord & "\" & Ord & "M"
+        stage = "Create order folder"
+        targetPath = basePath & "\" & Ord & "\" & Ord & "M"
+        EnsureFolder targetPath
 
         ' Open the Customer Release template for ME, populate it, and save as order-specific
         ' Template location: Temporary_Order_Files\XXXXXXM.xlsm
-        Dim ShtERS
         ShtERS = TEMP_ORDER_BASE & "XXXXXXM.xlsm"
-        Workbooks.Open Filename:=ShtERS
-        ShtERS = "XXXXXXM.xlsm"
-        Workbooks(ShtERS).Worksheets("CUSTOMER RELEASE").Cells(9, 4).value = New_OrderWS.Cells(9, 2).value   ' Customer Name
-        Workbooks(ShtERS).Worksheets("CUSTOMER RELEASE").Cells(10, 4).value = New_OrderWS.Cells(5, 2).value  ' Order Number
-        Workbooks(ShtERS).Worksheets("CUSTOMER RELEASE").Cells(11, 4).value = New_OrderWS.Cells(5, 10).value ' PO Number
-        Workbooks(ShtERS).Worksheets("CUSTOMER RELEASE").Cells(13, 4).value = New_OrderWS.Cells(15, 13).value ' Designer Name (ME)
+        stage = "Open transmittal template"
+        targetPath = CStr(ShtERS)
+        Set wbTemplate = OpenOrderTemplate(targetPath)
+        stage = "Populate transmittal template"
+        wbTemplate.Worksheets("CUSTOMER RELEASE").Cells(9, 4).value = New_OrderWS.Cells(9, 2).value   ' Customer Name
+        wbTemplate.Worksheets("CUSTOMER RELEASE").Cells(10, 4).value = New_OrderWS.Cells(5, 2).value  ' Order Number
+        wbTemplate.Worksheets("CUSTOMER RELEASE").Cells(11, 4).value = New_OrderWS.Cells(5, 10).value ' PO Number
+        wbTemplate.Worksheets("CUSTOMER RELEASE").Cells(13, 4).value = New_OrderWS.Cells(15, 13).value ' Designer Name (ME)
         ' Save as: ...\{Ord}\{Ord}\{Ord}M\{Ord}M.xlsm  (e.g., 1100102999M.xlsm)
-        ActiveWorkbook.SaveAs Filename:=basePath & "\" & Ord & "\" & Ord & "M\" & Ord & "M.xlsm", _
+        stage = "Save order transmittal"
+        targetPath = basePath & "\" & Ord & "\" & Ord & "M\" & Ord & "M.xlsm"
+        ' SaveAs changes this workbook object's identity to the order-specific
+        ' file. Continue using the object rather than looking it up by old name.
+        wbTemplate.SaveAs filename:=targetPath, _
                               FileFormat:=xlOpenXMLWorkbookMacroEnabled, CreateBackup:=False
-        ActiveWorkbook.Close
+        stage = "Close order transmittal"
+        wbTemplate.Close SaveChanges:=False
+        Set wbTemplate = Nothing
     End If
 
     ' --- ELECTRICAL ENGINEERING (PC/EE) TRANSMITTALS ---
@@ -799,20 +823,30 @@ Sub NewOrder2NewDB()
     If New_OrderWS.Cells(13, 2).value <> "N/A" And New_OrderWS.Cells(13, 2).value <> "" Then
 
         ' Create EE subfolder: ...\{Ord}\{Ord}\{Ord}E\
-        EnsureFolder basePath & "\" & Ord & "\" & Ord & "E"
+        stage = "Create order folder"
+        targetPath = basePath & "\" & Ord & "\" & Ord & "E"
+        EnsureFolder targetPath
 
         ' Open the Customer Release template for EE, populate it, and save
         ShtERS = TEMP_ORDER_BASE & "XXXXXXE.xlsm"
-        Workbooks.Open Filename:=ShtERS
-        ShtERS = "XXXXXXE.xlsm"
-        Workbooks(ShtERS).Worksheets("Customer Release").Cells(9, 4).value = New_OrderWS.Cells(9, 2).value   ' Customer Name
-        Workbooks(ShtERS).Worksheets("Customer Release").Cells(10, 4).value = New_OrderWS.Cells(5, 2).value  ' Order Number
-        Workbooks(ShtERS).Worksheets("Customer Release").Cells(11, 4).value = New_OrderWS.Cells(5, 10).value ' PO Number
-        Workbooks(ShtERS).Worksheets("Customer Release").Cells(13, 4).value = New_OrderWS.Cells(13, 13).value ' Designer Name (EE)
+        stage = "Open transmittal template"
+        targetPath = CStr(ShtERS)
+        Set wbTemplate = OpenOrderTemplate(targetPath)
+        stage = "Populate transmittal template"
+        wbTemplate.Worksheets("Customer Release").Cells(9, 4).value = New_OrderWS.Cells(9, 2).value   ' Customer Name
+        wbTemplate.Worksheets("Customer Release").Cells(10, 4).value = New_OrderWS.Cells(5, 2).value  ' Order Number
+        wbTemplate.Worksheets("Customer Release").Cells(11, 4).value = New_OrderWS.Cells(5, 10).value ' PO Number
+        wbTemplate.Worksheets("Customer Release").Cells(13, 4).value = New_OrderWS.Cells(13, 13).value ' Designer Name (EE)
         ' Save as: ...\{Ord}\{Ord}\{Ord}E\{Ord}E.xlsm  (e.g., 1100102999E.xlsm)
-        ActiveWorkbook.SaveAs Filename:=basePath & "\" & Ord & "\" & Ord & "E\" & Ord & "E.xlsm", _
+        stage = "Save order transmittal"
+        targetPath = basePath & "\" & Ord & "\" & Ord & "E\" & Ord & "E.xlsm"
+        ' SaveAs changes this workbook object's identity to the order-specific
+        ' file. Continue using the object rather than looking it up by old name.
+        wbTemplate.SaveAs filename:=targetPath, _
                               FileFormat:=xlOpenXMLWorkbookMacroEnabled, CreateBackup:=False
-        ActiveWorkbook.Close
+        stage = "Close order transmittal"
+        wbTemplate.Close SaveChanges:=False
+        Set wbTemplate = Nothing
     End If
 
     ' --- PRODUCTION RELEASE TRANSMITTALS ---
@@ -821,44 +855,61 @@ Sub NewOrder2NewDB()
     ' ME Production Release Transmittal (MR)
     If New_OrderWS.Cells(15, 2).value <> "N/A" And New_OrderWS.Cells(15, 2).value <> "" Then
         ShtERS = TEMP_ORDER_BASE & "F7-113 Eng Production Transmittal MR.xlsm"
-        Workbooks.Open Filename:=ShtERS
-        ShtERS = "F7-113 Eng Production Transmittal MR.xlsm"
-        Workbooks(ShtERS).Worksheets("Cover_Sheet").Cells(8, 3).value = New_OrderWS.Cells(9, 2).value   ' Customer Name
-        Workbooks(ShtERS).Worksheets("Cover_Sheet").Cells(9, 3).value = New_OrderWS.Cells(5, 2).value   ' Order Number
-        Workbooks(ShtERS).Worksheets("Cover_Sheet").Cells(11, 3).value = New_OrderWS.Cells(15, 13).value ' Designer (ME)
+        stage = "Open transmittal template"
+        targetPath = CStr(ShtERS)
+        Set wbTemplate = OpenOrderTemplate(targetPath)
+        stage = "Populate transmittal template"
+        wbTemplate.Worksheets("Cover_Sheet").Cells(8, 3).value = New_OrderWS.Cells(9, 2).value   ' Customer Name
+        wbTemplate.Worksheets("Cover_Sheet").Cells(9, 3).value = New_OrderWS.Cells(5, 2).value   ' Order Number
+        wbTemplate.Worksheets("Cover_Sheet").Cells(11, 3).value = New_OrderWS.Cells(15, 13).value ' Designer (ME)
         ' Save as: ...\{Ord}\{Ord}\{Ord}M\{Ord}MR.xlsm  (e.g., 1100102999MR.xlsm)
-        ActiveWorkbook.SaveAs Filename:=basePath & "\" & Ord & "\" & Ord & "M\" & Ord & "MR.xlsm", _
+        stage = "Save order transmittal"
+        targetPath = basePath & "\" & Ord & "\" & Ord & "M\" & Ord & "MR.xlsm"
+        ' SaveAs changes this workbook object's identity to the order-specific
+        ' file. Continue using the object rather than looking it up by old name.
+        wbTemplate.SaveAs filename:=targetPath, _
                               FileFormat:=xlOpenXMLWorkbookMacroEnabled, CreateBackup:=False
-        ActiveWorkbook.Close
+        stage = "Close order transmittal"
+        wbTemplate.Close SaveChanges:=False
+        Set wbTemplate = Nothing
     End If
 
     ' EE Production Release Transmittal (ER)
     If New_OrderWS.Cells(13, 2).value <> "N/A" And New_OrderWS.Cells(13, 2).value <> "" Then
         ShtERS = TEMP_ORDER_BASE & "F7-113 Eng Production Transmittal ER.xlsm"
-        Workbooks.Open Filename:=ShtERS
-        ShtERS = "F7-113 Eng Production Transmittal ER.xlsm"
-        Workbooks(ShtERS).Worksheets("Cover_Sheet").Cells(8, 3).value = New_OrderWS.Cells(9, 2).value   ' Customer Name
-        Workbooks(ShtERS).Worksheets("Cover_Sheet").Cells(9, 3).value = New_OrderWS.Cells(5, 2).value   ' Order Number
-        Workbooks(ShtERS).Worksheets("Cover_Sheet").Cells(11, 3).value = New_OrderWS.Cells(13, 13).value ' Designer (EE)
+        stage = "Open transmittal template"
+        targetPath = CStr(ShtERS)
+        Set wbTemplate = OpenOrderTemplate(targetPath)
+        stage = "Populate transmittal template"
+        wbTemplate.Worksheets("Cover_Sheet").Cells(8, 3).value = New_OrderWS.Cells(9, 2).value   ' Customer Name
+        wbTemplate.Worksheets("Cover_Sheet").Cells(9, 3).value = New_OrderWS.Cells(5, 2).value   ' Order Number
+        wbTemplate.Worksheets("Cover_Sheet").Cells(11, 3).value = New_OrderWS.Cells(13, 13).value ' Designer (EE)
         ' Save as: ...\{Ord}\{Ord}\{Ord}E\{Ord}ER.xlsm  (e.g., 1100102999ER.xlsm)
-        ActiveWorkbook.SaveAs Filename:=basePath & "\" & Ord & "\" & Ord & "E\" & Ord & "ER.xlsm", _
+        stage = "Save order transmittal"
+        targetPath = basePath & "\" & Ord & "\" & Ord & "E\" & Ord & "ER.xlsm"
+        ' SaveAs changes this workbook object's identity to the order-specific
+        ' file. Continue using the object rather than looking it up by old name.
+        wbTemplate.SaveAs filename:=targetPath, _
                               FileFormat:=xlOpenXMLWorkbookMacroEnabled, CreateBackup:=False
-        ActiveWorkbook.Close
+        stage = "Close order transmittal"
+        wbTemplate.Close SaveChanges:=False
+        Set wbTemplate = Nothing
     End If
 
     ' --- ZIP THE FOLDER FOR WINDCHILL UPLOAD ---
     ' Zips the entire order folder structure into a single .zip file.
     ' The engineers will then upload this zip into Windchill.
     ' TODO: Eventually replace this with direct Windchill API upload.
-    Call CreateZipFile((basePath & "\"), (basePath & ".zip"))
+    stage = "Compress and verify order ZIP"
+    targetPath = basePath & ".zip"
+    ' The helper raises on failure. Therefore control reaches form clearing
+    ' only after a fully verified archive has been published successfully.
+    Call CreateZipFile(basePath, targetPath)
 
-    ' NOTE: The following lines were previously used to delete the folder after zipping.
-    ' They have been commented out because the folder may still be needed, and deletion
-    ' should be a deliberate user action, not automatic.
-    'Set FSO = CreateObject("scripting.filesystemobject")
-    'FSO.deletefolder basePath
+    ' Retain the source folder for troubleshooting and RetryOrderZipOnly.
+    ' Source-folder deletion is not part of this workflow.
 
-SKIP2:
+    stage = "Clear successfully processed order form"
     ' --- CLEAR THE ORDER ENTRY FORM ---
     ' Reset the New Order worksheet for the next order entry
     New_OrderWS.Range("A5:L5").ClearContents
@@ -890,41 +941,64 @@ SKIP2:
         New_OrderWS.Cells(rowIdx, 12).value = 0  ' ME_Est per line
     Next rowIdx
 
-    Application.DisplayAlerts = True
-    Application.ScreenUpdating = True
+    ' Report success only on the normal path, after publishing the verified ZIP
+    ' and clearing the form. Release the order handle BEFORE showing the message.
+    ' Release runs under the normal error handler so a release failure cannot be
+    ' silently followed by a claim that the processing lock was released.
+    stage = "Release order processing lock"
+    targetPath = basePath & ".processing.lock"
+    If lockHandle <> 0 Then ReleaseOrderProcessingLock lockHandle
+    Application.DisplayAlerts = oldAlerts
+    Application.ScreenUpdating = oldScreen
+    MsgBox "Order processed successfully." & vbCrLf & vbCrLf & _
+        "ZIP created and verified:" & vbCrLf & basePath & ".zip" & vbCrLf & vbCrLf & _
+        "Temporary processing locks released and removed.", _
+        vbInformation, "Order processing complete"
 
+CleanExit:
+    ' Cleanup runs on success or after the failure message. Ignore only cleanup
+    ' errors, ensuring Excel state and the re-entry guard are always restored.
+    On Error Resume Next
+    If Not wbTemplate Is Nothing Then wbTemplate.Close SaveChanges:=False
+    If Not oCon Is Nothing Then oCon.Close
+    If lockHandle <> 0 Then ReleaseOrderProcessingLock lockHandle
+    Application.DisplayAlerts = oldAlerts
+    Application.ScreenUpdating = oldScreen
+    running = False
+    On Error GoTo 0
     Exit Sub
 
-    ' NOTE: The old DeleteDirectory error handler has been removed entirely.
-    ' It previously deleted the folder tree and resumed MkDir, which was destructive.
-    ' The EnsureFolder() helper now handles directory creation safely.
-
-End Sub
-
-
-'===============================================================================
-' SUB: EnsureFolder (HELPER)
-'===============================================================================
-' PURPOSE: Safely creates a directory if it doesn't already exist.
-'          Does NOT delete or modify existing directories.
-'
-' PARAMETERS:
-'   folderPath - Full path to the directory to create
-'
-' NOTE: This replaces the old pattern of:
-'     On Error GoTo DeleteDirectory
-'     MkDir "..."
-'   which would delete the entire folder tree on collision. This new approach
-'   preserves any files that may already exist in the directory from earlier
-'   pipeline steps (scheduling, design sheet uploads, etc.).
-'===============================================================================
-Private Sub EnsureFolder(ByVal folderPath As String)
-    ' Dir() with vbDirectory returns the folder name if it exists, empty string if not
-    If Dir(folderPath, vbDirectory) = "" Then
-        MkDir folderPath
+Failed:
+    ' Capture Err immediately. The message identifies the failing stage/target
+    ' and distinguishes confirmed inserts from an operation merely attempted.
+    errorNumber = Err.Number
+    errorText = Err.Description
+    failureMessage = "Order processing failed." & vbCrLf & _
+        "Stage: " & stage & vbCrLf & "Target: " & targetPath & vbCrLf & _
+        "Error " & CStr(errorNumber) & ": " & errorText
+    If databaseAttempted Then
+        failureMessage = failureMessage & vbCrLf & vbCrLf & _
+            "Database inserts were attempted; confirmed completed lines: " & CStr(insertedLines) & "." & vbCrLf & _
+            "Do not rerun order entry without checking the database." & vbCrLf & _
+            "If only packaging failed, correct the file issue and run RetryOrderZipOnly."
     End If
-    ' If the folder already exists, we simply do nothing and preserve its contents.
+    MsgBox failureMessage, vbExclamation, "NewOrder2NewDB failed"
+    ' Resume ends the active handler before executing the cleanup label.
+    ' The order form is untouched unless failure occurred during form clearing.
+    Resume CleanExit
 End Sub
+
+'-------------------------------------------------------------------------------
+' Uses a typed FileSystemObject and leaves existing folder contents untouched.
+' Parents are created in order by NewOrder2NewDB; failures propagate to its
+' stage/target handler. FolderExists avoids resetting VBA's shared Dir search.
+'-------------------------------------------------------------------------------
+Private Sub EnsureFolder(ByVal folderPath As String)
+    Dim fs As Scripting.FileSystemObject
+    Set fs = New Scripting.FileSystemObject
+    If Not fs.FolderExists(folderPath) Then fs.CreateFolder folderPath
+End Sub
+
 
 
 '===============================================================================
@@ -958,6 +1032,8 @@ Sub SendNew_Email()
     Dim EBody As String, PC_EMail As String, ME_EMail As String
     Dim OutApp As Object
     Dim OutMail As Object
+    Dim emailErrorNumber As Long, emailErrorText As String
+    On Error GoTo EmailFailed
 
     ' Determine which supervisor is running the tool (for email signature)
     ' NOTE: This should use a config setting instead of hardcoded usernames.
@@ -994,37 +1070,39 @@ Sub SendNew_Email()
 
     If ((PC_Eng <> "0" And PC_Eng <> "N/A") And (ME_Eng <> "0" And ME_Eng <> "N/A")) Then
         ' Both EE and ME assigned
-        EBody = EBody & PC_Eng & " and " & ME_Eng & ",<BR><BR>Please process the attached NEW order notification.<BR><BR>"
-        CcList = "fpm_PAC_EngineeringClerk@coperion.com; joey.purdon@coperion.com; brian.schmoldt@coperion.com; scowen@coperionktron.com"
+        EBody = EBody & PC_Eng & " and " & ME_Eng & ",<BR><BR>Please process the attached <b>NEW</b> order notification.<BR><BR>"
+        CcList = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; stephen.cowen@ktron.com"
     ElseIf (ME_Eng = "0" Or ME_Eng = "N/A") Then
         ' Only EE assigned (no ME)
-        EBody = EBody & PC_Eng & ",<BR><BR>Please process the attached NEW order notification.<BR><BR>"
-        CcList = "fpm_PAC_EngineeringClerk@coperion.com; joey.purdon@coperion.com; brian.schmoldt@coperion.com; scowen@coperionktron.com"
+        EBody = EBody & PC_Eng & ",<BR><BR>Please process the attached <b>NEW</b> order notification.<BR><BR>"
+        CcList = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; stephen.cowen@ktron.com"
     ElseIf (PC_Eng = "0" Or PC_Eng = "N/A") Then
         ' Only ME assigned (no EE)
-        EBody = EBody & ME_Eng & ",<BR><BR>Please process the attached NEW order notification.<BR><BR>"
-        CcList = "fpm_PAC_EngineeringClerk@coperion.com; brian.schmoldt@coperion.com; scowen@coperionktron.com"
+        EBody = EBody & ME_Eng & ",<BR><BR>Please process the attached <b>NEW</b> order notification.<BR><BR>"
+        CcList = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; stephen.cowen@ktron.com"
     End If
 
     ' Add link to the latest order text document
-    EBody = EBody & "Use the following link to review the latest order text:<BR>"
-    EBody = EBody & "<A HREF='" & URL_Text & "'>"
-    EBody = EBody & Ord & "_" & CustName & "</A><BR><BR>"
+'    EBody = EBody & "Use the following link to review the latest order text:<BR>"
+'    EBody = EBody & "<A HREF='" & URL_Text & "'>"
+'    EBody = EBody & Ord & "_" & CustName & "</A><BR><BR>"
+    EBody = EBody & "Order Text document is managed in SAP.<BR>"
+    EBody = EBody & "All other order-related documentation is managed in Windchill."
     
-    OrdStr = Trim$(Str(Ord))
-    AttachPath = TEMP_ORDER_BASE & OrdStr & "\" & OrdStr & "\Order_Review.pdf"
-    AttachPathME = TEMP_ORDER_BASE & OrdStr & "\" & OrdStr & "\" & OrdStr & "M\" & _
-                   "OrderReview_" & OrdStr & "_ME.pdf"
-    AttachPathEE = TEMP_ORDER_BASE & OrdStr & "\" & OrdStr & "\" & OrdStr & "E\" & _
-                   "OrderReview_" & OrdStr & "_EE.pdf"
-
-    ' Check if any Order Review form exists and add link or warning
-    Dim FoundOrderReview As String
-    FoundOrderReview = Dir(AttachPath) & Dir(AttachPathEE) & Dir(AttachPathME)
-
-    If FoundOrderReview = "" Then
-        EBody = EBody & "<span style=""color:#FF0000"">-No Order Review Found-</span style=""color:#FF0000""><BR>"
-    End If
+'    OrdStr = Trim$(Str(Ord))
+'    AttachPath = TEMP_ORDER_BASE & OrdStr & "\" & OrdStr & "\Order_Review.pdf"
+'    AttachPathME = TEMP_ORDER_BASE & OrdStr & "\" & OrdStr & "\" & OrdStr & "M\" & _
+'                   "OrderReview_" & OrdStr & "_ME.pdf"
+'    AttachPathEE = TEMP_ORDER_BASE & OrdStr & "\" & OrdStr & "\" & OrdStr & "E\" & _
+'                   "OrderReview_" & OrdStr & "_EE.pdf"
+'
+'    ' Check if any Order Review form exists and add link or warning
+'    Dim FoundOrderReview As String
+'    FoundOrderReview = Dir(AttachPath) & Dir(AttachPathEE) & Dir(AttachPathME)
+'
+'    If FoundOrderReview = "" Then
+'        EBody = EBody & "<span style=""color:#FF0000"">-No Order Review Found-</span style=""color:#FF0000""><BR>"
+'    End If
 
     ' Set up the email with recipients, CC, and subject
     With OutMail
@@ -1053,16 +1131,8 @@ Sub SendNew_Email()
             .Attachments.Add (AttachPath)
         End With
 
-        ' Move the attached file to a "Processed" subfolder to prevent re-attachment.
-        ' Files starting with "1100" go into order-specific subfolders;
-        ' others go into INTERNAL_Orders.
-        If Left(AttachFile, 4) = "1100" Then
-            On Error GoTo CreateFolder
-            Name AttachPath As "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE_Schedule\Processed\" & Left(AttachFile, 7) & "xxx\" & AttachFile
-            On Error GoTo 0
-        Else
-            Name AttachPath As "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE_Schedule\Processed\INTERNAL_Orders\" & AttachFile
-        End If
+        MoveSchedulingFile AttachPath, _
+        "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE_Schedule\Processed"
 
         AttachFile = Dir(LookupPath, vbDirectory)
     Wend
@@ -1093,12 +1163,17 @@ Sub SendNew_Email()
     EmailsWS.Range("B3:Q5").ClearContents
     Exit Sub
 
-CreateFolder:
-    ' Error handler: If the "Processed\{prefix}xxx" folder doesn't exist, create it
-    ' then retry the file move. This is another instance of error-driven folder creation
-    ' but is less dangerous since it only creates, never deletes.
-    MkDir "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE_Schedule\Processed\" & Left(AttachFile, 7) & "xxx"
-    Resume
+EmailFailed:
+    emailErrorNumber = Err.Number
+    emailErrorText = Err.Description
+    On Error Resume Next
+    Set OutMail = Nothing
+    Set OutApp = Nothing
+    On Error GoTo 0
+    MsgBox "Email preparation stopped. Error " & CStr(emailErrorNumber) & _
+        ": " & emailErrorText & vbCrLf & _
+        "Check the displayed draft and files already moved before retrying.", vbExclamation
+        
 End Sub
 
 
@@ -1129,6 +1204,8 @@ Sub Send_Change_Order()
     Dim EBody As String, PC_EMail As String, ME_EMail As String
     Dim OutApp As Object
     Dim OutMail As Object
+    Dim emailErrorNumber As Long, emailErrorText As String
+    On Error GoTo EmailFailed
 
     ' Determine current user for signature purposes
     If UCase(Environ("Username")) = "SCHMOLDT-BRI" Then
@@ -1165,20 +1242,23 @@ Sub Send_Change_Order()
     EBody = "<BASEFONT FACE='Calibri, arial, MS Sans Serif'>"
 
     If ((PC_Eng <> "0" And PC_Eng <> "N/A") And (ME_Eng <> "0" And ME_Eng <> "N/A")) Then
-        EBody = EBody & PC_Eng & " and " & ME_Eng & ",<BR><BR>Please process the attached CHANGE order notification.<BR><BR>"
-        CcList = "joey.purdon@coperion.com"
+        EBody = EBody & PC_Eng & " and " & ME_Eng & ",<BR><BR>Please process the attached <b>CHANGE</b> order notification.<BR><BR>"
+        CcList = "joey.purdon@ktron.com"
     ElseIf (ME_Eng = "0" Or ME_Eng = "N/A") Then
-        EBody = EBody & PC_Eng & ",<BR><BR>Please process the attached CHANGE order notification.<BR><BR>"
-        CcList = "joey.purdon@coperion.com"
+        EBody = EBody & PC_Eng & ",<BR><BR>Please process the attached <b>CHANGE</b> order notification.<BR><BR>"
+        CcList = "joey.purdon@ktron.com"
     ElseIf (PC_Eng = "0" Or PC_Eng = "N/A") Then
-        EBody = EBody & ME_Eng & ",<BR><BR>Please process the attached CHANGE order notification.<BR><BR>"
+        EBody = EBody & ME_Eng & ",<BR><BR>Please process the attached <b>CHANGE</b> order notification.<BR><BR>"
         CcList = ""
     End If
 
-    ' Add link to order text
-    EBody = EBody & "Use the following link to review the latest order text:"
-    EBody = EBody & "<A HREF='" & URL_Text & "'><BR>"
-    EBody = EBody & Ord & "_" & CustName & "</A><BR><BR>"
+    EBody = EBody & "Order Text document is managed in SAP.<BR>"
+    EBody = EBody & "All other order-related documentation is managed in Windchill."
+
+'    ' Add link to order text
+'    EBody = EBody & "Use the following link to review the latest order text:"
+'    EBody = EBody & "<A HREF='" & URL_Text & "'><BR>"
+'    EBody = EBody & Ord & "_" & CustName & "</A><BR><BR>"
 
     ' Set up email recipients and display
     With OutMail
@@ -1198,13 +1278,8 @@ Sub Send_Change_Order()
         AttachPath = "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE_Schedule\" & AttachFile
         OutMail.Attachments.Add (AttachPath)
 
-        If Left(AttachFile, 4) = "1100" Then
-            On Error GoTo CreateFolder1
-            Name AttachPath As "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE_Schedule\Processed\" & Left(AttachFile, 7) & "xxx\" & AttachFile
-            On Error GoTo 0
-        Else
-            Name AttachPath As "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE_Schedule\Processed\INTERNAL_Orders\" & AttachFile
-        End If
+        MoveSchedulingFile AttachPath, _
+        "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE_Schedule\Processed"
 
         AttachFile = Dir(LookupPath, vbDirectory)
     Wend
@@ -1250,12 +1325,16 @@ Sub Send_Change_Order()
 
     Exit Sub
 
-CreateFolder1:
-    ' Error handler: Move file to INTERNAL_Orders if the order-specific
-    ' Processed subfolder can't be created
-    Name AttachPath As "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE_Schedule\Processed\INTERNAL_Orders\" & AttachFile
-    Resume Next
-
+EmailFailed:
+    emailErrorNumber = Err.Number
+    emailErrorText = Err.Description
+    On Error Resume Next
+    Set OutMail = Nothing
+    Set OutApp = Nothing
+    On Error GoTo 0
+    MsgBox "Email preparation stopped. Error " & CStr(emailErrorNumber) & _
+        ": " & emailErrorText & vbCrLf & _
+        "Check the displayed draft and files already moved before retrying.", vbExclamation
 End Sub
 
 
@@ -1452,59 +1531,6 @@ Sub WhoHasOrder()
 
 End Sub
 
-
-
-
-'===============================================================================
-' SUB: CreateZipFile
-'===============================================================================
-' PURPOSE: Creates a .zip file from a folder using the Windows Shell.
-'          Used to zip the order transmittal folder for Windchill upload.
-'
-' PARAMETERS:
-'   folderToZipPath  - Full path to the folder to compress
-'   zippedFileFullName - Full path for the output .zip file
-'
-' PROCESS:
-'   1. Creates an empty .zip file with the correct header bytes
-'   2. Uses Shell.Application to copy the folder contents into the zip
-'   3. Waits (polling every 1 second) until the zip item count matches the source
-'
-' BAD PRACTICES:
-'   - On Error Resume Next during the wait loop silently eats errors if
-'     the zipping process fails.
-'   - No timeout on the wait loop; if zipping fails, this loops forever.
-'   - The empty zip header is a magic byte sequence. This is a well-known
-'     technique but should at least be documented.
-'
-' TODO: This entire process should eventually be replaced with direct
-'       Windchill API upload, eliminating the need for intermediate zip files.
-'===============================================================================
-Sub CreateZipFile(folderToZipPath As Variant, zippedFileFullName As Variant)
-
-    Dim ShellApp As Object
-
-    ' Create an empty zip file with the minimum valid zip header.
-    ' Bytes: PK (50 4B) + version needed (05 06) + 18 null bytes
-    ' This is the "end of central directory record" for an empty zip.
-    Open zippedFileFullName For Output As #1
-    Print #1, Chr$(80) & Chr$(75) & Chr$(5) & Chr$(6) & String(18, 0)
-    Close #1
-
-    ' Use the Windows Shell to copy files into the zip
-    Set ShellApp = CreateObject("Shell.Application")
-    ShellApp.Namespace(zippedFileFullName).CopyHere ShellApp.Namespace(folderToZipPath).items
-
-    ' Wait for the zipping to complete by comparing item counts.
-    ' The On Error Resume Next is here because the zip namespace may not be
-    ' immediately readable while Windows is still writing to it.
-    On Error Resume Next
-    Do Until ShellApp.Namespace(zippedFileFullName).items.Count = ShellApp.Namespace(folderToZipPath).items.Count
-        Application.Wait (Now + TimeValue("0:00:01"))
-    Loop
-    On Error GoTo 0
-
-End Sub
 
 
 '===============================================================================

@@ -23,6 +23,9 @@ Const M_URL_WINDCHILL_CSRF As String = M_URL_WINDCHILL_BASE & "/security/csrf"
 Const M_URL_WINDCHILL_SEARCH As String = M_URL_WINDCHILL_BASE & "/search/objects?"
 Const M_URL_WINDCHILL_DOCUMENT_DOWNLOAD As String = M_URL_WINDCHILL_BASE & "/files/downloadDoc/"
 
+Const M_URL_WINDCHILL_APP As String = "https://windchill.fcpm.biz/Windchill/app/#ptc1/tcomp/infoPage?oid="
+Const M_WINDCHILL_FOLDER_TYPE As String = "wt.folder.SubFolder"
+
 Const M_WINDCHILL_FILTER_STRING As String = "$filter=name eq "
 Const M_WINDCHILL_TYPEID_STRING As String = "&typeId="
 
@@ -95,6 +98,87 @@ Private Function get_OID(search_term As String) As String
     End If
     
 End Function
+
+' TODO
+Private Function UrlEncodeForOid(value As String) As String
+    Dim result As String
+    result = value
+    
+    result = Replace(result, "%", "%25")
+    result = Replace(result, ":", "%3A")
+    result = Replace(result, " ", "%20")
+    
+    UrlEncodeForOid = result
+End Function
+
+
+'TODO
+Private Function SearchObjects(searchTerm As String) As Collection
+    Dim http_request As Object
+    Dim http_request_string As String
+    Dim http_response_text As String
+    Dim JSON As Dictionary
+    
+    Set http_request = CreateObject("MSXML2.XMLHTTP")
+    http_request_string = M_URL_WINDCHILL_SEARCH & searchTerm
+    
+    With http_request
+        .Open "GET", http_request_string, False
+        .Send
+    End With
+    
+    If http_request.Status <> 200 Then
+        Set SearchObjects = Nothing
+        Exit Function
+    End If
+    
+    http_response_text = http_request.ResponseText
+    Set JSON = JsonConverter.ParseJson(http_response_text)
+    
+    If JSON.Exists("items") Then
+        Set SearchObjects = JSON.Item("items")
+    Else
+        Set SearchObjects = Nothing
+    End If
+End Function
+
+'TODO
+Public Function BuildWindchillInfoPageUrl(objectOid As String) As String
+    If Len(objectOid) = 0 Then
+        BuildWindchillInfoPageUrl = vbNullString
+    Else
+        BuildWindchillInfoPageUrl = M_URL_WINDCHILL_APP & UrlEncodeForOid(objectOid)
+    End If
+End Function
+
+'TODO
+Public Function GetFolderUrlByOrderNumber(orderNumber As String) As String
+    Dim searchTerm As String
+    Dim items As Collection
+    Dim firstItem As Dictionary
+    Dim folderOid As String
+    
+    searchTerm = M_WINDCHILL_FILTER_STRING & Chr$(39) & orderNumber & Chr$(39) _
+               & M_WINDCHILL_TYPEID_STRING & M_WINDCHILL_FOLDER_TYPE
+    
+    Set items = SearchObjects(searchTerm)
+    
+    If items Is Nothing Then
+        GetFolderUrlByOrderNumber = vbNullString
+        Exit Function
+    End If
+    
+    If items.Count = 0 Then
+        GetFolderUrlByOrderNumber = vbNullString
+        Exit Function
+    End If
+    
+    Set firstItem = items.Item(1)
+    folderOid = firstItem.Item("id")
+    
+    GetFolderUrlByOrderNumber = BuildWindchillInfoPageUrl(folderOid)
+End Function
+
 
 Property Get order_number() As String
     order_number = m_order_number

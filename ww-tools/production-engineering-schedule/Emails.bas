@@ -96,16 +96,13 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
     If Not oCon Is Nothing Then Set oCon = Nothing
     
     'Greetings
-    BuildHTML = "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, & DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
-    
-    'add_coperion_note BuildHTML
-    
-    ' Adjust greeting based on time of day
-    If Format$(Now, "am/pm") = "am" Then
-        BuildHTML = BuildHTML & "Good Morning,<BR><BR>"
-    Else
-        BuildHTML = BuildHTML & "Good Afternoon,<BR><BR>"
-    End If
+    BuildHTML = "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, &amp; DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
+    BuildHTML = BuildHTML & "<b>K-Tron Equipment Order:</b> " & Ord & "<BR>"
+    BuildHTML = BuildHTML & "<b>Ship To:</b> " & CustName & "<BR>"
+    BuildHTML = BuildHTML & "<b>Current Status:</b> Out for Approval Hold<BR><BR>"
+
+    'Greeting
+    BuildHTML = BuildHTML & "Hello,<BR><BR>"
 
     If hasReminderText Then
         BuildHTML = BuildHTML & "I am following up on the drawing approvals I last sent on " & lastUpdate & ".  " & _
@@ -113,16 +110,20 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
     End If
 
     'Message Text
-    BuildHTML = BuildHTML & "The <u>" & LCase$(EngType) & "</u> approval documents and drawings for your order have been completed " & _
-                                "and are attached to this email. Please review these drawings and return them with any required changes*.<BR><BR>"
-    BuildHTML = BuildHTML & "This email pertains <b><u>only</u></b> to your " & EngType & " approval documents and you may be receiving a similar email " & _
-                                "regarding your " & LCase$(OthEngType) & " approval drawings.<BR>"
-    BuildHTML = BuildHTML & "_______________________________________________________________________________<BR><BR>"
-    BuildHTML = BuildHTML & "This job is currently on an <b>Out for Approval Hold</b> and <u>not scheduled</u> for final shipment.  An official " & _
-                                "<b>Ship Date</b> will be assigned when the Approval process has been completed.  Please note, changes made to the design " & _
-                                "or configuration of any equipment during the approval process may affect the final ship date and result in change order fees.<BR><BR>"
-    BuildHTML = BuildHTML & "<i>*PDF's and/or scanned file mark-ups are preferred, but electronic changes to our drawings are acceptable as long as each change is clearly " & _
-                                "outlined with revision clouds or other distinct markings and notes.</i>"
+    BuildHTML = BuildHTML & "The " & LCase$(EngType) & " approval documents and drawings for your equipment order are ready and attached to this email.<BR>"
+    BuildHTML = BuildHTML & "Please review them and reply with any required changes. (See markup guidelines below.)<BR>"
+    BuildHTML = BuildHTML & "Please note that this email only covers your " & LCase$(EngType) & " drawings. You will receive a separate email for your " & _
+                                LCase$(OthEngType) & " approval documents.<BR><BR>"
+    BuildHTML = BuildHTML & "<b>Project Status &amp; Next Steps</b>"
+    BuildHTML = BuildHTML & "<ul>"
+    BuildHTML = BuildHTML & "<li><b>Current Hold:</b> This order is currently on an <b>Out for Approval Hold</b> and is not yet scheduled for shipment. " & _
+                                "K-Tron will assign an official ship date once the approval process is complete.</li>"
+    BuildHTML = BuildHTML & "<li><b>Change Policy:</b> Any modifications to equipment design or configuration during this review may impact your final " & _
+                                "ship date and may result in change order fees.</li>"
+    BuildHTML = BuildHTML & "<li><b>How to Submit Changes:</b> We prefer mark-ups on a PDF or scanned file. However, we also accept direct electronic edits " & _
+                                "as long as every change is clearly highlighted using revision clouds, distinct markings, and notes.</li>"
+    BuildHTML = BuildHTML & "</ul>"
+    BuildHTML = BuildHTML & "If you have questions, comments, or concerns; please do not hesitate to contact me."
     'Display email
     OutMail.Display
     
@@ -133,7 +134,7 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
     On Error Resume Next
     With OutMail
         .To = "Look up who to send it to via SAP"
-        .CC = "fpm_PAC_EngineeringClerk@coperion.com; brian.schmoldt@coperion.com" & OtherEngEmail
+        .CC = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; " & OtherEngEmail
         .BCC = vbNullString
         .Subject = CustName & " PO # " & PONum & " / Coperion Order # " & Ord & " : " & EngType & " Approval Documents"
         .BodyFormat = olFormatHTML
@@ -224,24 +225,20 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     
     'Order Info
     BuildHTML = vbNullString
-    'add_coperion_note BuildHTML
     
     BuildHTML = "<BASEFONT FACE='Calibri, arial, MS Sans Serif'>"
     BuildHTML = BuildHTML & "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, & DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
-    BuildHTML = BuildHTML & "<b> Coperion Sales Order: " & order_number & "</b><BR>"
-    BuildHTML = BuildHTML & "<b> Ship To: " & CustName & "</b><BR>"
-    BuildHTML = BuildHTML & "<b> Current Status: Released to Production</b><BR><BR>"
+    BuildHTML = BuildHTML & "<b> Coperion Sales Order: </b>" & vbTab & order_number & "<BR>"
+    BuildHTML = BuildHTML & "<b> Ship To: </b>" & vbTab & CustName & "<BR>"
+    BuildHTML = BuildHTML & "<b> Current Status: </b>" & vbTab & "Released to Production<BR><BR>"
     
-    'Greetings
-    If Format$(Now, "am/pm") = "am" Then
-        BuildHTML = BuildHTML & "Good Morning,<BR><BR>"
-    Else
-        BuildHTML = BuildHTML & "Good Afternoon,<BR><BR>"
-    End If
+    'Greeting
+    BuildHTML = BuildHTML & "Hello,<BR><BR>"
 
     'Initial Message
-    BuildHTML = BuildHTML & "The Coperion " & LCase$(EngType) & " certified drawings for the subject job have been completed and are attached to this email. " & _
-                                "No response is needed.<BR>"
+    BuildHTML = BuildHTML & "Please find your Coperion " & LCase$(EngType) & " certified drawings attached for the subject job. No response is required.<BR><BR>"
+    BuildHTML = BuildHTML & "Please note that any changes to the design or configuration from this point forward will result in a revised ship date, " & _
+                                "as well as Change Order fees to cover additional labor, materials, and shipping delays.<BR><BR>"
 
     'HyperLink
     Dim TextCode As Double
@@ -251,11 +248,10 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     Next CodeIndex
 
     'Remaining Message
-    BuildHTML = BuildHTML & "This job is scheduled for shipment from our plant.  A separate email communicating the ship date will be sent to you.  <BR>" & _
-                                "Any changes to the design or configuration of the order will result in a revised Ship Date and Change Order fees to cover " & _
-                                "the costs associated with labor, materials, and shipping delays.<BR><BR>"
-    BuildHTML = BuildHTML & "If you have any questions about these documents, please contact me.<BR>"
-    BuildHTML = BuildHTML & "If you have any non-engineering related questions about your order, please contact your sales person."
+    BuildHTML = BuildHTML & "You will receive a separate email confirming your scheduled ship date. If you have any questions or concerns regarding your ship date, please contact:<BR>"
+    BuildHTML = BuildHTML & "&bull; Michelle Young: <a href='mailto:michelle.young@ktron.com'>michelle.young@ktron.com</a><BR>"
+    BuildHTML = BuildHTML & "&bull; Staci Voboril: <a href='mailto:staci.voboril@ktron.com'>staci.voboril@ktron.com</a><BR>"
+    BuildHTML = BuildHTML & "&bull; Customer Service: 800-821-2476"
         
     
     With OutMail
@@ -268,7 +264,7 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     On Error Resume Next
     With OutMail
         .To = "Look up who to send it to via SAP"
-        .CC = "fpm_PAC_EngineeringClerk@coperion.com; brian.schmoldt@coperion.com" & OtherEngEmail
+        .CC = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; " & OtherEngEmail
         .BCC = vbNullString
         .Subject = CustName & " PO # " & PONum & " / Coperion Order # " & order_number & " : " & EngType & " Certified Documents"
         .BodyFormat = olFormatHTML
@@ -286,22 +282,9 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     
 End Sub
 
-Sub add_coperion_note(ByRef email_text As String)
-
-    email_text = "<BASEFONT FACE='Calibri, Arial, MS Sans Serif'>"
-    email_text = email_text & "<strong>TOGETHER WE MAKE IT WORK- <span style='color: red;'>Coperion FOOD AND PERFORMANCE MATERIALS WILL REBRAND TO COPERION!<br>"
-    email_text = email_text & "Upcoming changes - Important dates:</span></strong><br>"
-    email_text = email_text & "<ul style='color: red;'>"
-    email_text = email_text & "<li>May 13, 2024, our email domain changes to @coperion.com</li>"
-    email_text = email_text & "<li>From May onwards – expect to see branding changes</li>"
-    email_text = email_text & "<li>Further info to follow</li></ul>"
-    email_text = email_text & "<span style='color: red;'>Please see the attached announcement regarding company name and branding changes.</span><br><br><hr><br>"
-    
-End Sub
-
 Sub SendProductionEmail(prodScheduler As String)
-    Dim manufacturingEngineering As String: manufacturingEngineering = "matt.phillips@coperion.com"
-    Dim manufacturing_engineering_backup As String: manufacturing_engineering_backup = "carl.johnson@coperion.com"
+    Dim manufacturingEngineering As String: manufacturingEngineering = "matt.phillips@ktron.com"
+    Dim manufacturing_engineering_backup As String: manufacturing_engineering_backup = "carl.johnson@ktron.com"
     Dim manufacturingEngineeringName As String: manufacturingEngineeringName = "Matt"
     Dim manufacturing_engineering_backup_name As String: manufacturing_engineering_backup_name = "Carl"
     
@@ -338,7 +321,7 @@ Sub SendProductionEmail(prodScheduler As String)
     
     With OutMail
         .To = manufacturingEngineering
-        .CC = "brian.schmoldt@coperion.com"
+        .CC = "brian.schmoldt@ktron.com"
         .Subject = "Production Release for Order #" & Ord & ": " & CustName
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & BuildHTML & Signature & "</body></html>"
@@ -392,7 +375,7 @@ Public Sub ChangeOrderEmail()
     
     On Error Resume Next
     With OutMail
-        .To = "fpm_PAC_EngineeringClerk@coperion.com"
+        .To = ENGINEERING_CLERK_EMAIL
         .Subject = EngineeringType & "CHANGE ORDER: " & UserForm1.orderNumber & " - " & UserForm1.CustomerName
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & HTMLString & "<br>" & Signature & "</body></html>"
@@ -401,15 +384,15 @@ Public Sub ChangeOrderEmail()
     On Error GoTo 0
     
     'Add attachments
-    If (ChangeOrderForm.ChangeOrderTree.Nodes.Count > 0) Then
-        Dim Node As Variant
-        For Each Node In ChangeOrderForm.ChangeOrderTree.Nodes
-            With OutMail
-                .Attachments.Add (Node.Text)
-            End With
-            Call TransferFiles(Node.Text)
-        Next
-    End If
+'    If (ChangeOrderForm.ChangeOrderTree.Nodes.Count > 0) Then
+'        Dim Node As Variant
+'        For Each Node In ChangeOrderForm.ChangeOrderTree.Nodes
+'            With OutMail
+'                .Attachments.Add (Node.Text)
+'            End With
+'            Call TransferFiles(Node.Text)
+'        Next
+'    End If
 End Sub
 
 Sub TransferFiles(NodeText As String)
@@ -615,10 +598,10 @@ Sub DashboardEmail()
     Dim ManagerName As String
     
     If ScheduleWS.Range("AJ2").Value = "PC" Then
-        ManagerEmail = "joey.purdon@coperion.com"
-        ManagerName = "Joey"
+        ManagerEmail = "nathan.hemman@ktron.com"
+        ManagerName = "Nathan"
     Else
-        ManagerEmail = "brian.schmoldt@coperion.com"
+        ManagerEmail = "brian.schmoldt@ktron.com"
         ManagerName = "Brian"
     End If
     
@@ -648,21 +631,21 @@ Sub DashboardEmail()
             'Order Notes
             BuildHTML = BuildHTML & "<li style=margin-top:0px;margin-bottom:0px>[" & WeeklyNotesWS.Cells(index, 6).Value & "] " & WeeklyNotesWS.Cells(index, 29).Value & "</li>"
         End If
-        
-    'Travel/PTO
-    BuildHTML = BuildHTML & "<BR>"
-    BuildHTML = BuildHTML & "&emsp;<b><u>Travel/PTO</u>:</b>"
-    BuildHTML = BuildHTML & "<ul><li style=margin-top:0px;margin-bottom:0px>Travel: None</li>"
-    BuildHTML = BuildHTML & "<li style=margin-top:0px;margin-bottom:0px>PTO: None</li></ul>"
+           
     Next index
     BuildHTML = BuildHTML & "</ul></ul>"
-    
+           
     'Next Week
     BuildHTML = BuildHTML & "<BR>"
     BuildHTML = BuildHTML & "&emsp;<b><u>Next Week</u>:</b><ul>"
     lastRow = ScheduleWS.Cells(Rows.Count, 2).End(xlUp).Row
+    If lastRow > 59 Then lastRow = 59
+    If lastRow < 4 Then
+    End If
     For index = 4 To lastRow
-        If (UCase(ScheduleWS.Cells(index, 13).Value) <> "WAITING FOR CUSTOMER APPROVAL") And (UCase(ScheduleWS.Cells(index, 13).Value) <> "HOLD") Then
+        If (UCase(ScheduleWS.Cells(index, 13).Value) = "WAITING FOR CUSTOMER APPROVAL") Or (UCase(ScheduleWS.Cells(index, 13).Value) = "HOLD") Or (UCase(ScheduleWS.Cells(index, 13).Value) = "IN QUEUE") _
+        Or (UCase(ScheduleWS.Cells(index, 13).Value) = "IN DESIGN") Or (UCase(ScheduleWS.Cells(index, 13).Value) = "CHECKING") Or (UCase(ScheduleWS.Cells(index, 13).Value) = "WORKING ON PRODUCTION RELEASE") _
+        Or (UCase(ScheduleWS.Cells(index, 13).Value) = "CHANGE ORDER") Or (UCase(ScheduleWS.Cells(index, 13).Value) = "OTHER") Then
             BuildHTML = BuildHTML & "<li style=margin-top:0px;margin-bottom:0px><b>" & ScheduleWS.Cells(index, 2).Value & ":</b> " & ScheduleWS.Cells(index, 3).Value & " (" & ScheduleWS.Cells(index, 13).Value & ")</li>"
         End If
     Next index
@@ -695,7 +678,7 @@ Sub DashboardEmail()
     On Error Resume Next
     With OutMail
         .To = ManagerEmail
-        .CC = "brian.schmoldt@coperion.com"
+        .CC = "brian.schmoldt@ktron.com"
         .BCC = vbNullString
         .Subject = "Dashboard: " & WeeklyNotesWS.Cells(3, 3).Value & " (" & EndSpan & " - " & Date & ")"
         '.Body = strbody
