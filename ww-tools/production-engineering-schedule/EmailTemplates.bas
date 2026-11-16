@@ -161,7 +161,19 @@ Public Sub EditTemplate(ByVal templateName As String)
     If Not TemplateExists(path) Then RestoreDefaultTemplate templateName, True
 
     Dim app As Object: Set app = CreateObject("Outlook.Application")
-    Dim item As Object: Set item = OpenTemplateItem(app, path)
+    Dim item As Object
+    On Error Resume Next
+    Set item = OpenTemplateItem(app, path)
+    If Err.Number <> 0 Then
+        Dim openError As String: openError = "Error " & Err.Number & ": " & Err.Description
+        Err.Clear
+        On Error GoTo 0
+        If MsgBox("Outlook could not open the template:" & vbCr & path & vbCr & vbCr & openError & vbCr & vbCr & _
+                  "The file may be damaged. Replace it with the original wording and open that?", vbYesNo + vbExclamation, "Edit template") <> vbYes Then Exit Sub
+        RestoreDefaultTemplate templateName, True
+        Set item = OpenTemplateItem(app, path)
+    End If
+    On Error GoTo 0
 
     Dim editor As TemplateEditor: Set editor = New TemplateEditor
     editor.Attach item, path
@@ -256,6 +268,7 @@ End Function
 Private Function TemplateExists(ByVal path As String) As Boolean
     On Error Resume Next
     TemplateExists = (Len(Dir(path)) > 0)
+    If TemplateExists Then TemplateExists = (FileLen(path) > 0)
 End Function
 
 Private Sub EnsureTemplateFolder()
