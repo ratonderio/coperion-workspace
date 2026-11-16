@@ -32,7 +32,7 @@
     End If
 
     ' 2. Define the Directory Structure
-    sRootPath = "\\uswwq-p-fs01.cps.local\orders\Common Files\CPE\Temporary_Order_Files"
+    sRootPath = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE\Temporary_Order_Files"
     sLevel1 = sRootPath & "\" & sOrderNumber
     sLevel2 = sLevel1 & "\" & sOrderNumber
     sLevel3 = sLevel2 & "\" & sOrderNumber & "E"

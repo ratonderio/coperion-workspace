@@ -33,7 +33,7 @@ Public Const ShtShip = "Shipped"
 Public Const ShtAD = "AddDeletes"
 Public Const ShtPMC = "PMC_Status"
 
-'\\USWWQ-P-FS01
+'\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01
 Public Const Path_SAP = "W:\Manufacturing\Projects\Data"
 
 Sub Order_Details()

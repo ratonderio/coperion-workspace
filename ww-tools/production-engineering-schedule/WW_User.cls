@@ -10,11 +10,11 @@ Attribute VB_Exposed = False
 '@Folder "__Modules"
 Option Explicit
 'Define constants
-Const m_CPE_Tools = "\\uswwq-p-fs01\orders\Common Files\CPE_Schedule\"
+Const m_CPE_Tools = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\"
 Const m_Local_Cache = "\WW_Tools\Tools Cache\"
 Const m_Local_Log = "\WW_Tools\Logs\"
-Const m_WDrive_Data = "\\uswwq-p-fs01\PAC5-W\Manufacturing\Projects\Data\"
-Const m_Temp_Order_Files = "\\USWWQ-P-FS01\orders\Common Files\CPE\Temporary_Order_Files\"
+Const m_WDrive_Data = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\PAC5-W\Manufacturing\Projects\Data\"
+Const m_Temp_Order_Files = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE\Temporary_Order_Files\"
 Const m_Open_Parts_Workbook = "Parts.XLS"
 Const m_Open_Orders_Workbook = "Open.XLS"
 Const m_Shipped_Orders_Workbook = "Shipped.XLS"

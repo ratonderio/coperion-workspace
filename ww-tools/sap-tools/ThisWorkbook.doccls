@@ -16,7 +16,7 @@ Private Sub Workbook_Open()
     RevDate = Revisions.Cells(5, 3).Value
     
     On Error GoTo CannotFindRevFile
-        Workbooks.Open Filename:="\\USWWQ-P-FS01\cadfiles\SapTools\Archive\SAP Tools Rev History.xlsm"
+        Workbooks.Open Filename:="\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\cadfiles\SapTools\Archive\SAP Tools Rev History.xlsm"
     On Error GoTo 0
     
     NewRevNum = Workbooks("SAP Tools Rev History.xlsm").Worksheets("RevHistory").Cells(5, 3).Value
