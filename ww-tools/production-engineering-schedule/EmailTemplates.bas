@@ -186,7 +186,7 @@ Public Sub RestoreDefaultTemplate(ByVal templateName As String, Optional ByVal s
     mail.BodyFormat = OL_FORMAT_HTML
     mail.Subject = DefaultSubject(templateName)
     mail.HTMLBody = "<html><body>" & DefaultBody(templateName) & "</body></html>"
-    mail.SaveAs path, OL_TEMPLATE
+    SaveTemplateFile mail, path
     mail.Close OL_DISCARD
 
     If Not silent Then MsgBox "Template restored:" & vbCr & path, vbInformation, "Restore default template"
@@ -200,6 +200,35 @@ End Sub
 ' ---------------------------------------------------------------------------
 ' Files
 ' ---------------------------------------------------------------------------
+
+'Saves the item as an .oft at destPath. Outlook's SaveAs is unreliable when it writes
+'straight to a network share, so save locally and copy; a copy failure then names the
+'real problem (missing folder, no write permission, file locked) instead of an Outlook error.
+Public Sub SaveTemplateFile(ByVal item As Object, ByVal destPath As String)
+    Dim tmpPath As String
+    tmpPath = Environ$("TEMP") & "\" & Mid$(destPath, InStrRev(destPath, "\") + 1)
+    Dim stage As String
+
+    On Error Resume Next
+    Kill tmpPath
+    On Error GoTo Fail
+
+    stage = "saving a temporary copy to " & tmpPath
+    item.SaveAs tmpPath, OL_TEMPLATE
+
+    stage = "copying the template to " & destPath & " (check that the folder exists and you have write access, and that nobody has the file open)"
+    FileCopy tmpPath, destPath
+
+    On Error Resume Next
+    Kill tmpPath
+    Exit Sub
+
+Fail:
+    Dim msg As String: msg = "Error " & Err.Number & " while " & stage & vbCr & vbCr & Err.Description
+    On Error Resume Next
+    Kill tmpPath
+    Err.Raise vbObjectError + 513, "EmailTemplates.SaveTemplateFile", msg
+End Sub
 
 Private Function TemplatePath(ByVal templateName As String) As String
     TemplatePath = TEMPLATE_FOLDER & templateName & ".oft"

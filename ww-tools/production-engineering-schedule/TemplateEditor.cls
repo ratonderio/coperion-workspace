@@ -23,12 +23,12 @@ Public Sub Attach(ByVal item As Object, ByVal templatePath As String)
 End Sub
 
 Private Sub m_Item_Write(Cancel As Boolean)
-    On Error Resume Next
-    m_Item.SaveAs m_Path, 5 'olTemplate
-    If Err.Number <> 0 Then
-        MsgBox "Could not save the template to:" & vbCr & m_Path & vbCr & vbCr & _
-               "Use File > Save As > Outlook Template and overwrite that file.", vbExclamation, "Email template"
-    End If
+    On Error GoTo Fail
+    EmailTemplates.SaveTemplateFile m_Item, m_Path
+    Exit Sub
+Fail:
+    MsgBox "Could not save the template:" & vbCr & vbCr & Err.Description & vbCr & vbCr & _
+           "You can also use File > Save As > Outlook Template and overwrite the same file.", vbExclamation, "Email template"
 End Sub
 
 Private Sub m_Item_Close(Cancel As Boolean)
