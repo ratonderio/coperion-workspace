@@ -5,7 +5,7 @@ Option Explicit
 '
 ' Editable email templates.
 '
-' Each email can be backed by an Outlook template (.oft) in TEMPLATE_FOLDER. Anyone
+' Each email can be backed by an Outlook template (.oft) in CPE_Schedule\Templates (see TemplateFolder). Anyone
 ' can change the wording by editing that file in Outlook (see EditTemplate), with no
 ' VBA changes. The built-in default text below is the fallback, and is also what
 ' RestoreDefaultTemplate writes back out, so there is one source of truth.
@@ -17,7 +17,10 @@ Option Explicit
 ' Do not put your own signature in a template; the sender's signature is added
 ' automatically when the email is created.
 
-Public Const TEMPLATE_FOLDER As String = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\Templates\"
+'The CPE_Schedule folder comes from the "CPE Tools" setting that WW_User saves on every
+'workbook open (WW_User.m_CPE_Tools); this is only used if that setting is missing.
+Private Const CPE_TOOLS_FALLBACK As String = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\"
+Private Const TEMPLATE_SUBFOLDER As String = "Templates\"
 
 Public Const TEMPLATE_APPROVAL As String = "ApprovalEmail"
 
@@ -261,8 +264,16 @@ Private Function OpenTemplateItem(ByVal app As Object, ByVal path As String) As 
     Kill tmpPath
 End Function
 
+Private Function TemplateFolder() As String
+    Dim base As String
+    base = GetSetting("WW_Tools", "Directories", "CPE Tools", CPE_TOOLS_FALLBACK)
+    If Len(base) = 0 Then base = CPE_TOOLS_FALLBACK
+    If Right$(base, 1) <> "\" Then base = base & "\"
+    TemplateFolder = base & TEMPLATE_SUBFOLDER
+End Function
+
 Private Function TemplatePath(ByVal templateName As String) As String
-    TemplatePath = TEMPLATE_FOLDER & templateName & ".oft"
+    TemplatePath = TemplateFolder() & templateName & ".oft"
 End Function
 
 Private Function TemplateExists(ByVal path As String) As Boolean
@@ -272,7 +283,8 @@ Private Function TemplateExists(ByVal path As String) As Boolean
 End Function
 
 Private Sub EnsureTemplateFolder()
-    If Len(Dir(TEMPLATE_FOLDER, vbDirectory)) = 0 Then MkDir Left$(TEMPLATE_FOLDER, Len(TEMPLATE_FOLDER) - 1)
+    Dim folder As String: folder = TemplateFolder()
+    If Len(Dir(folder, vbDirectory)) = 0 Then MkDir Left$(folder, Len(folder) - 1)
 End Sub
 
 ' ---------------------------------------------------------------------------
