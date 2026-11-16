@@ -100,6 +100,21 @@ now. This looks like redirection set up by IT, not a permanent guarantee. When
 a path stops working, check here first. Prefer the UNC form over the `I:`
 letter in code, because drive letters are mapped per user.
 
+## Editable email templates
+
+Emails in the production engineering schedule are moving from hardcoded HTML to
+Outlook templates (`.oft`) in `\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\Templates\`
+so the wording can be changed without touching VBA. `EmailTemplates.bas` holds the
+loader, the built-in default wording (used if a template is missing or unreadable, and
+by "restore default"), and the edit/restore macros. `TemplateEditor.cls` saves an
+edited template back to its `.oft`.
+
+- Placeholders are plain text, e.g. `{OrderNumber}`; optional blocks are wrapped in
+  `[[IF Reminder]] ... [[/IF]]`. The valid names for each email are listed above its
+  default body in `EmailTemplates.bas`.
+- Do not put a signature in a template; it is added when the email is created.
+- Converted so far: the approval email (`ApprovalEmail.oft`).
+
 ## Email addresses
 
 Addresses are now `first.last@ktron.com`. The shared engineering clerk mailbox

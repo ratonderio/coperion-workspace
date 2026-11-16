@@ -95,35 +95,20 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
     If Not oRs Is Nothing Then Set oRs = Nothing
     If Not oCon Is Nothing Then Set oCon = Nothing
     
-    'Greetings
-    BuildHTML = "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, &amp; DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
-    BuildHTML = BuildHTML & "<b>K-Tron Equipment Order:</b> " & Ord & "<BR>"
-    BuildHTML = BuildHTML & "<b>Ship To:</b> " & CustName & "<BR>"
-    BuildHTML = BuildHTML & "<b>Current Status:</b> Out for Approval Hold<BR><BR>"
-
-    'Greeting
-    BuildHTML = BuildHTML & "Hello,<BR><BR>"
-
-    If hasReminderText Then
-        BuildHTML = BuildHTML & "I am following up on the drawing approvals I last sent on " & lastUpdate & ".  " & _
-                                    "Please let me know if there are any additional questions or concerns.<br><br><hr><br>"
-    End If
-
-    'Message Text
-    BuildHTML = BuildHTML & "The " & LCase$(EngType) & " approval documents and drawings for your equipment order are ready and attached to this email.<BR>"
-    BuildHTML = BuildHTML & "Please review them and reply with any required changes. (See markup guidelines below.)<BR>"
-    BuildHTML = BuildHTML & "Please note that this email only covers your " & LCase$(EngType) & " drawings. You will receive a separate email for your " & _
-                                LCase$(OthEngType) & " approval documents.<BR><BR>"
-    BuildHTML = BuildHTML & "<b>Project Status &amp; Next Steps</b>"
-    BuildHTML = BuildHTML & "<ul>"
-    BuildHTML = BuildHTML & "<li><b>Current Hold:</b> This order is currently on an <b>Out for Approval Hold</b> and is not yet scheduled for shipment. " & _
-                                "K-Tron will assign an official ship date once the approval process is complete.</li>"
-    BuildHTML = BuildHTML & "<li><b>Change Policy:</b> Any modifications to equipment design or configuration during this review may impact your final " & _
-                                "ship date and may result in change order fees.</li>"
-    BuildHTML = BuildHTML & "<li><b>How to Submit Changes:</b> We prefer mark-ups on a PDF or scanned file. However, we also accept direct electronic edits " & _
-                                "as long as every change is clearly highlighted using revision clouds, distinct markings, and notes.</li>"
-    BuildHTML = BuildHTML & "</ul>"
-    BuildHTML = BuildHTML & "If you have questions, comments, or concerns; please do not hesitate to contact me."
+    'Build the body and subject from the editable template (EmailTemplates.bas)
+    Dim tokens As Object: Set tokens = NewTokens()
+    AddToken tokens, "OrderNumber", CStr(Ord)
+    AddToken tokens, "ShipTo", CustName
+    AddToken tokens, "PONumber", PONum
+    AddToken tokens, "EngType", EngType
+    AddToken tokens, "EngTypeLower", LCase$(EngType)
+    AddToken tokens, "OtherEngTypeLower", LCase$(OthEngType)
+    AddToken tokens, "LastUpdate", CStr(lastUpdate)
+    SetFlag tokens, "Reminder", hasReminderText
+    
+    Dim emailSubject As String
+    BuildHTML = RenderTemplate(TEMPLATE_APPROVAL, tokens, emailSubject)
+    
     'Display email
     OutMail.Display
     
@@ -136,7 +121,7 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
         .To = "Look up who to send it to via SAP"
         .CC = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; " & OtherEngEmail
         .BCC = vbNullString
-        .Subject = CustName & " PO # " & PONum & " / Coperion Order # " & Ord & " : " & EngType & " Approval Documents"
+        .Subject = emailSubject
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & BuildHTML & "<br>" & Signature & "</body></html>"
         .Attachments.Add ("\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\Coperion Food and Performance Materials (FPM) is migrating to Coperion.pdf")
