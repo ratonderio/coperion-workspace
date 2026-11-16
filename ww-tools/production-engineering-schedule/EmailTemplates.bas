@@ -75,7 +75,7 @@ Public Function RenderTemplate(ByVal templateName As String, ByVal tokens As Obj
     If exists Then
         On Error Resume Next
         Dim app As Object: Set app = CreateObject("Outlook.Application")
-        Dim tmpl As Object: Set tmpl = app.CreateItemFromTemplate(path)
+        Dim tmpl As Object: Set tmpl = OpenTemplateItem(app, path)
         If Err.Number = 0 And Not tmpl Is Nothing Then
             If Len(tmpl.HTMLBody) > 0 Then html = tmpl.HTMLBody Else readFailed = True
             If Len(tmpl.Subject) > 0 Then emailSubject = tmpl.Subject
@@ -161,7 +161,7 @@ Public Sub EditTemplate(ByVal templateName As String)
     If Not TemplateExists(path) Then RestoreDefaultTemplate templateName, True
 
     Dim app As Object: Set app = CreateObject("Outlook.Application")
-    Dim item As Object: Set item = app.CreateItemFromTemplate(path)
+    Dim item As Object: Set item = OpenTemplateItem(app, path)
 
     Dim editor As TemplateEditor: Set editor = New TemplateEditor
     editor.Attach item, path
@@ -229,6 +229,25 @@ Fail:
     Kill tmpPath
     Err.Raise vbObjectError + 513, "EmailTemplates.SaveTemplateFile", msg
 End Sub
+
+'Opens a new item from the .oft. Outlook can fail (access denied) opening a template
+'directly from a network path, so open a local copy instead. A failed copy raises a
+'plain error naming the file.
+Private Function OpenTemplateItem(ByVal app As Object, ByVal path As String) As Object
+    Dim tmpPath As String
+    tmpPath = Environ$("TEMP") & "\open_" & Mid$(path, InStrRev(path, "\") + 1)
+
+    On Error Resume Next
+    Kill tmpPath
+    On Error GoTo 0
+
+    FileCopy path, tmpPath
+
+    Set OpenTemplateItem = app.CreateItemFromTemplate(tmpPath)
+
+    On Error Resume Next
+    Kill tmpPath
+End Function
 
 Private Function TemplatePath(ByVal templateName As String) As String
     TemplatePath = TEMPLATE_FOLDER & templateName & ".oft"
