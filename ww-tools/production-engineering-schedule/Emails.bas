@@ -124,7 +124,6 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
         .Subject = emailSubject
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & BuildHTML & "<br>" & Signature & "</body></html>"
-        .Attachments.Add ("\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\Coperion Food and Performance Materials (FPM) is migrating to Coperion.pdf")
     End With
     
     On Error GoTo 0
@@ -254,7 +253,6 @@ Sub SendCertifiedEmail(ByVal order_number As String)
         .Subject = CustName & " PO # " & PONum & " / Coperion Order # " & order_number & " : " & EngType & " Certified Documents"
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & BuildHTML & "<br>" & Signature & "</body></html>"
-        .Attachments.Add ("\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\Coperion Food and Performance Materials (FPM) is migrating to Coperion.pdf")
     End With
     On Error GoTo 0
     
