@@ -10,6 +10,16 @@ Dim Debg As Boolean
 Dim ProjResponsible As String
 Dim AEIndex As Long
 
+Sub SendProductionTest()
+    Ord = 1100102179
+    CustName = LookupCustomerName(Ord)
+    SendProductionEmail
+End Sub
+
+Sub SendDashboardTest()
+    DashboardEmail
+End Sub
+
 Sub SendApprovalTest()
     Dim hasReminderText As Boolean: hasReminderText = False
     Dim lastUpdate As Date: lastUpdate = Date
@@ -19,12 +29,20 @@ Sub SendApprovalTest()
 End Sub
 
 
-Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optional ByVal lastUpdate As Date = 0, Optional ByVal orderNumber As Long = 0)
+Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optional ByVal lastUpdate As Date = 0, Optional ByVal orderNumber As Long = 0, Optional ByVal customerName As String = vbNullString)
     Set OutApp = CreateObject("Outlook.Application")
     Set OutMail = OutApp.CreateItem(0)
     
     'If order number not 0
     If orderNumber <> 0 Then Ord = orderNumber
+    
+    'CustName is only filled in when the schedule loop runs, so reminders and tests supply it
+    'or it is looked up here; otherwise "Ship To" would be blank or left over from another order
+    If Len(customerName) > 0 Then
+        CustName = customerName
+    ElseIf orderNumber <> 0 Then
+        CustName = LookupCustomerName(Ord)
+    End If
     
     'Get PO Number
     Set oCon = New ADODB.connection: oCon.ConnectionString = databaseConnectionString: oCon.Open
@@ -141,6 +159,20 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
     
 End Sub
 
+'Customer name for an order from the Prod_Eng table (empty if not found)
+Private Function LookupCustomerName(ByVal orderNo As Long) As String
+    Dim con As ADODB.connection: Set con = New ADODB.connection
+    con.ConnectionString = databaseConnectionString
+    con.Open
+    
+    Dim rs As ADODB.Recordset
+    Set rs = con.Execute("SELECT DISTINCT Customer_Name FROM Prod_Eng WHERE Order_Num=" & orderNo)
+    If Not rs.EOF Then LookupCustomerName = CStr(rs.Fields(0).Value & vbNullString)
+    
+    rs.Close
+    con.Close
+End Function
+
 Sub SendCertifiedTest()
 
     SendCertifiedEmail "1100102179"
@@ -247,7 +279,7 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     
 End Sub
 
-Sub SendProductionEmail(prodScheduler As String)
+Sub SendProductionEmail()
     Dim manufacturingEngineering As String: manufacturingEngineering = "matt.phillips@ktron.com"
     Dim manufacturing_engineering_backup As String: manufacturing_engineering_backup = "carl.johnson@ktron.com"
     Dim manufacturingEngineeringName As String: manufacturingEngineeringName = "Matt"

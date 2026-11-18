@@ -29,7 +29,7 @@ Private Sub ApprovalReminderButton_Click()
     
     ScheduleWS.CheckBoxes(RowNumber).Value = xlOff
     
-    SendApprovalEmail True, ScheduleWS.Cells(RowNumber, "BA").Value, orderNumber
+    SendApprovalEmail True, ScheduleWS.Cells(RowNumber, "BA").Value, orderNumber, CustomerName
     UserForm_Close
 
 End Sub
