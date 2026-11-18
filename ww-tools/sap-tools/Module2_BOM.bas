@@ -797,7 +797,7 @@ End Sub
 
 Sub createResultsWB()
     Dim templateName As String: templateName = "BulkBOMs.xltm"
-    Dim templateLocation As String: templateLocation = "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE_Schedule\" & templateName
+    Dim templateLocation As String: templateLocation = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\" & templateName
 
     Dim matResultsWB As Workbook: Set matResultsWB = Workbooks.Open(templateLocation)
     Dim matResultsWS As Worksheet: Set matResultsWS = matResultsWB.ActiveSheet

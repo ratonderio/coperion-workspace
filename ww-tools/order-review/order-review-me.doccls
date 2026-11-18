@@ -45,14 +45,14 @@
 'lbl_Exit:
 '    'Save
 '    On Error GoTo lbl_Fail
-'        ChangeFileOpenDirectory "\\USWWQ-P-FS01\cadfiles\CPE_ELEC\OrderReview Forms"
+'        ChangeFileOpenDirectory "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\cadfiles\CPE_ELEC\OrderReview Forms"
 '        ActiveDocument.SaveAs2 FileName:="OrderReview " & OrdStr & ".docm", FileFormat:= _
 '            wdFormatXMLDocumentMacroEnabled, LockComments:=False, Password:="", _
 '            AddToRecentFiles:=True, WritePassword:="", ReadOnlyRecommended:=False, _
 '            EmbedTrueTypeFonts:=False, SaveNativePictureFormat:=False, SaveFormsData _
 '            :=False, SaveAsAOCELetter:=False, CompatibilityMode:=15
 '    On Error GoTo 0
-'    MsgBox "J-Drive Folder Not Found" + vbCr + "File Saved to: \\USWWQ-P-FS01\CPE_ELEC\cadfiles\OrderReview Forms"
+'    MsgBox "J-Drive Folder Not Found" + vbCr + "File Saved to: \\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\CPE_ELEC\cadfiles\OrderReview Forms"
 '    Set oDoc = Nothing
 '    Set oCC = Nothing
 '    Exit Sub
@@ -97,7 +97,7 @@ Sub SaveOrderReviewForm()
     End If
 
     ' 2. Define the Directory Structure
-    sRootPath = "\\uswwq-p-fs01.cps.local\orders\Common Files\CPE\Temporary_Order_Files"
+    sRootPath = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE\Temporary_Order_Files"
     sLevel1 = sRootPath & "\" & sOrderNumber
     sLevel2 = sLevel1 & "\" & sOrderNumber
     sLevel3 = sLevel2 & "\" & sOrderNumber & "M"

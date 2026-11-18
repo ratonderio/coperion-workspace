@@ -572,7 +572,7 @@ Sub Update_Sched()
             
             SendCertifiedEmail Ord
         
-            SendProductionEmail (ScheduleWS.Cells(i, "BB"))
+            SendProductionEmail
 
         End If
     Next i

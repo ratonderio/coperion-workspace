@@ -100,6 +100,25 @@ now. This looks like redirection set up by IT, not a permanent guarantee. When
 a path stops working, check here first. Prefer the UNC form over the `I:`
 letter in code, because drive letters are mapped per user.
 
+## Editable email templates
+
+Emails in the production engineering schedule are moving from hardcoded HTML to a
+worksheet, `Email_Templates`, in the schedule workbook, so the wording can be changed
+without touching VBA. The sheet is created automatically the first time an email that
+uses it is built. `EmailTemplates.bas` holds the loader, the built-in default wording
+(used to create the sheet, to add any email missing from it, and by the restore macros)
+and the sheet layout.
+
+- One Subject row and several Body rows per email (column A = email, B = part, C = HTML).
+  Body rows are joined in order; use `<BR>` for a visible line break.
+- Placeholders are plain text, e.g. `{OrderNumber}`; optional blocks are wrapped in
+  `[[IF Reminder]] ... [[/IF]]`. Each email's placeholders are listed on the sheet.
+- Emails on the sheet: Approval, Certified, Production Release, Change Order and Dashboard. For the
+  dashboard, the two order lists are still generated in code (`{ThisWeek}`, `{NextWeek}`); the
+  greeting, headings and the Travel/PTO, Concerns and Crisis sections are editable.
+- Known limitation: VBA-created emails need classic Outlook. The new Outlook does not
+  support VBA/COM automation.
+
 ## Email addresses
 
 Addresses are now `first.last@ktron.com`. The shared engineering clerk mailbox

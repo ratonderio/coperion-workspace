@@ -786,7 +786,7 @@ Sub SubmitRev()
     CreatePartNumbers.Protect Contents:=False
     
     On Error GoTo CannotFindRevFile1
-        Workbooks.Open Filename:="\\USWWQ-P-FS01\cadfiles\SapTools\Archive\SAP Tools Rev History.xlsm"
+        Workbooks.Open Filename:="\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\cadfiles\SapTools\Archive\SAP Tools Rev History.xlsm"
     On Error GoTo 0
     
     Set ClrRange = Workbooks("SAP Tools Rev History.xlsm").Worksheets("RevHistory").Range("C5:E1048576")

@@ -296,13 +296,13 @@ Sub update_user_registry(update_cache As Boolean)
 
 End Sub
 
-'Download Production Order from \\uswwq-p-fs01\orders\Common Files\CPE_Schedule\Processed\
+'Download Production Order from \\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\Processed\
 'TODO: Use registry entries or sql entries
 Public Sub download_production_order(order_number As String, ByRef was_successful As Boolean)
     Dim source_address As String
     
     On Error GoTo inError
-    source_address = "\\uswwq-p-fs01\orders\Common Files\CPE_Schedule\Processed\" & Left$(order_number, 7) & "xxx\" & order_number & "-0.pdf"
+    source_address = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\Processed\" & Left$(order_number, 7) & "xxx\" & order_number & "-0.pdf"
     FileCopy source_address, (download_directory & order_number & "-0.pdf")
     
     was_successful = True

@@ -269,7 +269,7 @@ End Sub
 ' Uses the same source-folder layout and processing lock as NewOrder2NewDB.
 '-------------------------------------------------------------------------------
 Public Sub RetryOrderZipOnly()
-    Const BASE As String = "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE\Temporary_Order_Files\"
+    Const BASE As String = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE\Temporary_Order_Files\"
     ' InputBox(Type:=2) returns a String, or Boolean False for Cancel.
     ' Variant is deliberate here; converting before checking would lose Cancel.
     Dim inputValue As Variant
@@ -311,7 +311,7 @@ End Sub
 ' Does not access the database, source documents, or ZIP archive itself.
 '-------------------------------------------------------------------------------
 Public Sub CleanupReleasedOrderLocks()
-    Const BASE As String = "\\USWWQ-P-FS01.cps.local\orders\Common Files\CPE\Temporary_Order_Files\"
+    Const BASE As String = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE\Temporary_Order_Files\"
     Dim inputValue As Variant
     Dim orderText As String, basePath As String, errorText As String
     Dim orderHandle As LongPtr, zipHandle As LongPtr
