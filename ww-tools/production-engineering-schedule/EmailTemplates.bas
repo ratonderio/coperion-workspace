@@ -301,7 +301,7 @@ End Function
 Private Function DefaultSubject(ByVal templateName As String) As String
     Select Case templateName
         Case TEMPLATE_APPROVAL
-            DefaultSubject = "{ShipTo} PO # {PONumber} / Coperion Order # {OrderNumber} : {EngType} Approval Documents"
+            DefaultSubject = "{ShipTo} PO # {PONumber} / K-Tron Order # {OrderNumber} : {EngType} Approval Documents"
     End Select
 End Function
 

@@ -213,7 +213,7 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     
     BuildHTML = "<BASEFONT FACE='Calibri, arial, MS Sans Serif'>"
     BuildHTML = BuildHTML & "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, & DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
-    BuildHTML = BuildHTML & "<b> Coperion Sales Order: </b>" & vbTab & order_number & "<BR>"
+    BuildHTML = BuildHTML & "<b> K-Tron Sales Order: </b>" & vbTab & order_number & "<BR>"
     BuildHTML = BuildHTML & "<b> Ship To: </b>" & vbTab & CustName & "<BR>"
     BuildHTML = BuildHTML & "<b> Current Status: </b>" & vbTab & "Released to Production<BR><BR>"
     
@@ -221,7 +221,7 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     BuildHTML = BuildHTML & "Hello,<BR><BR>"
 
     'Initial Message
-    BuildHTML = BuildHTML & "Please find your Coperion " & LCase$(EngType) & " certified drawings attached for the subject job. No response is required.<BR><BR>"
+    BuildHTML = BuildHTML & "Please find your K-Tron " & LCase$(EngType) & " certified drawings attached for the subject job. No response is required.<BR><BR>"
     BuildHTML = BuildHTML & "Please note that any changes to the design or configuration from this point forward will result in a revised ship date, " & _
                                 "as well as Change Order fees to cover additional labor, materials, and shipping delays.<BR><BR>"
 
@@ -251,7 +251,7 @@ Sub SendCertifiedEmail(ByVal order_number As String)
         .To = "Look up who to send it to via SAP"
         .CC = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; " & OtherEngEmail
         .BCC = vbNullString
-        .Subject = CustName & " PO # " & PONum & " / Coperion Order # " & order_number & " : " & EngType & " Certified Documents"
+        .Subject = CustName & " PO # " & PONum & " / K-Tron Order # " & order_number & " : " & EngType & " Certified Documents"
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & BuildHTML & "<br>" & Signature & "</body></html>"
     End With
@@ -326,7 +326,7 @@ Public Sub ChangeOrderEmail()
     EngineeringType = IIf(UCase$(ScheduleWS.Range("AJ2").Value) = "PC", "ELECTRICAL ", "MECHANICAL ")
     
     'Build HTML String for email
-    HTMLString = "<b>Coperion Sales Order: " & UserForm1.orderNumber & ": " & UserForm1.CustomerName & "<br><br>"
+    HTMLString = "<b>K-Tron Sales Order: " & UserForm1.orderNumber & ": " & UserForm1.CustomerName & "<br><br>"
     HTMLString = HTMLString & "Could you please enter a Change Order for the following:</b><br><br>"
     
     If (ChangeOrderForm.ChangeOrderTextBox.Visible) Then
@@ -398,6 +398,14 @@ End Sub
 Sub FindEmailToPerson()
 
     Call InitiateSAP
+    
+    'InitiateSAP quietly leaves the session empty if SAP is not open or logged in
+    If session Is Nothing Then
+        MsgBox "Could not connect to SAP, so the customer contact was not looked up for this email." & vbCr & vbCr & _
+               "Please open SAP and log in (leave an ""SAP Easy Access"" window available, with fewer than 6 SAP windows open), " & _
+               "then fill in the ""To"" line manually or run the email again.", vbExclamation, "SAP not available"
+        Exit Sub
+    End If
     
     Dim sap_main_window As GuiMainWindow: Set sap_main_window = session.FindById("wnd[0]")
     
