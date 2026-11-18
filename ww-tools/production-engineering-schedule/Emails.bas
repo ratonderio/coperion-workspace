@@ -208,35 +208,16 @@ Sub SendCertifiedEmail(ByVal order_number As String)
     If Not oRs Is Nothing Then Set oRs = Nothing
     If Not oCon Is Nothing Then Set oCon = Nothing
     
-    'Order Info
-    BuildHTML = vbNullString
+    'Build the body and subject from the Email_Templates sheet (EmailTemplates.bas)
+    Dim tokens As Object: Set tokens = NewTokens()
+    AddToken tokens, "OrderNumber", order_number
+    AddToken tokens, "ShipTo", CustName
+    AddToken tokens, "PONumber", PONum
+    AddToken tokens, "EngType", EngType
+    AddToken tokens, "EngTypeLower", LCase$(EngType)
     
-    BuildHTML = "<BASEFONT FACE='Calibri, arial, MS Sans Serif'>"
-    BuildHTML = BuildHTML & "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, & DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
-    BuildHTML = BuildHTML & "<b> K-Tron Sales Order: </b>" & vbTab & order_number & "<BR>"
-    BuildHTML = BuildHTML & "<b> Ship To: </b>" & vbTab & CustName & "<BR>"
-    BuildHTML = BuildHTML & "<b> Current Status: </b>" & vbTab & "Released to Production<BR><BR>"
-    
-    'Greeting
-    BuildHTML = BuildHTML & "Hello,<BR><BR>"
-
-    'Initial Message
-    BuildHTML = BuildHTML & "Please find your K-Tron " & LCase$(EngType) & " certified drawings attached for the subject job. No response is required.<BR><BR>"
-    BuildHTML = BuildHTML & "Please note that any changes to the design or configuration from this point forward will result in a revised ship date, " & _
-                                "as well as Change Order fees to cover additional labor, materials, and shipping delays.<BR><BR>"
-
-    'HyperLink
-    Dim TextCode As Double
-    TextCode = 2
-    For CodeIndex = 5 To 10
-        TextCode = TextCode + Mid$(order_number, CodeIndex, 1)
-    Next CodeIndex
-
-    'Remaining Message
-    BuildHTML = BuildHTML & "You will receive a separate email confirming your scheduled ship date. If you have any questions or concerns regarding your ship date, please contact:<BR>"
-    BuildHTML = BuildHTML & "&bull; Michelle Young: <a href='mailto:michelle.young@ktron.com'>michelle.young@ktron.com</a><BR>"
-    BuildHTML = BuildHTML & "&bull; Staci Voboril: <a href='mailto:staci.voboril@ktron.com'>staci.voboril@ktron.com</a><BR>"
-    BuildHTML = BuildHTML & "&bull; Customer Service: 800-821-2476"
+    Dim emailSubject As String
+    BuildHTML = RenderTemplate(TEMPLATE_CERTIFIED, tokens, emailSubject)
         
     
     With OutMail
@@ -251,7 +232,7 @@ Sub SendCertifiedEmail(ByVal order_number As String)
         .To = "Look up who to send it to via SAP"
         .CC = ENGINEERING_CLERK_EMAIL & "; brian.schmoldt@ktron.com; " & OtherEngEmail
         .BCC = vbNullString
-        .Subject = CustName & " PO # " & PONum & " / K-Tron Order # " & order_number & " : " & EngType & " Certified Documents"
+        .Subject = emailSubject
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & BuildHTML & "<br>" & Signature & "</body></html>"
     End With
@@ -284,17 +265,14 @@ Sub SendProductionEmail(prodScheduler As String)
         EngType = "Mechanical"
     End If
     
-    'Order Info
-    BuildHTML = vbNullString
-    BuildHTML = "<BASEFONT FACE='Calibri, arial, MS Sans Serif'>"
-    BuildHTML = BuildHTML & "<b> Order #" & Ord & "</b><BR>"
-    BuildHTML = BuildHTML & "<b> Customer: " & CustName & "</b><BR><BR>"
+    'Build the body and subject from the Email_Templates sheet (EmailTemplates.bas)
+    Dim tokens As Object: Set tokens = NewTokens()
+    AddToken tokens, "OrderNumber", CStr(Ord)
+    AddToken tokens, "ShipTo", CustName
+    AddToken tokens, "RecipientName", manufacturingEngineeringName
     
-    
-    'Initial Message
-    BuildHTML = BuildHTML & "Hello " & manufacturingEngineeringName & ",<BR><BR>"
-    BuildHTML = BuildHTML & "Please process the attached release for order #" & Ord & ": " & CustName & ".<BR>"
-    BuildHTML = BuildHTML & "Thank You!"
+    Dim emailSubject As String
+    BuildHTML = RenderTemplate(TEMPLATE_PRODUCTION, tokens, emailSubject)
     
     'Get Signature
     OutMail.Display
@@ -306,7 +284,7 @@ Sub SendProductionEmail(prodScheduler As String)
     With OutMail
         .To = manufacturingEngineering
         .CC = "brian.schmoldt@ktron.com"
-        .Subject = "Production Release for Order #" & Ord & ": " & CustName
+        .Subject = emailSubject
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & BuildHTML & Signature & "</body></html>"
     End With
@@ -325,29 +303,33 @@ Public Sub ChangeOrderEmail()
     'Get Params
     EngineeringType = IIf(UCase$(ScheduleWS.Range("AJ2").Value) = "PC", "ELECTRICAL ", "MECHANICAL ")
     
-    'Build HTML String for email
-    HTMLString = "<b>K-Tron Sales Order: " & UserForm1.orderNumber & ": " & UserForm1.CustomerName & "<br><br>"
-    HTMLString = HTMLString & "Could you please enter a Change Order for the following:</b><br><br>"
+    'Build the body and subject from the Email_Templates sheet (EmailTemplates.bas)
+    Dim tokens As Object: Set tokens = NewTokens()
+    AddToken tokens, "OrderNumber", CStr(UserForm1.orderNumber)
+    AddToken tokens, "ShipTo", CStr(UserForm1.CustomerName)
+    AddToken tokens, "EngTypeUpper", Trim$(EngineeringType)
     
-    If (ChangeOrderForm.ChangeOrderTextBox.Visible) Then
-        HTMLString = IIf(ChangeOrderForm.ChangeOrderTextBox.Value = "Enter Comments Here.", HTMLString & _
-                            "<p style=""color:#FF0000"";>Enter Comments Here.</p>", HTMLString & _
-                            ChangeOrderForm.ChangeOrderTextBox.Value & "<br><br>")
+    'Comments typed on the form (text is encoded; line breaks kept)
+    Dim commentsHtml As String
+    If ChangeOrderForm.ChangeOrderTextBox.Visible Then
+        If ChangeOrderForm.ChangeOrderTextBox.Value = "Enter Comments Here." Then
+            commentsHtml = "<p style=""color:#FF0000"";>Enter Comments Here.</p>"
+        Else
+            commentsHtml = Replace(Replace(Replace(HtmlEscape(ChangeOrderForm.ChangeOrderTextBox.Value), vbCrLf, "<br>"), vbCr, "<br>"), vbLf, "<br>") & "<br><br>"
+        End If
     End If
+    AddHtmlToken tokens, "Comments", commentsHtml
     
-    HTMLString = HTMLString & EngineeringType & "APPROVAL DRAWINGS RECEIVED:<br><br>"
-    SelectedOption = IIf(ChangeOrderForm.NoChangesButton.Value, "<u>XX</u> ", "__ ")
-    HTMLString = HTMLString & SelectedOption & "NO CHANGES, RELEASE TO MANUFACTURING - ALL LINES<br>"
-    SelectedOption = IIf(ChangeOrderForm.NoteReleaseButton.Value, "<u>XX</u> ", "__ ")
-    HTMLString = HTMLString & SelectedOption & "NOTE CUSTOMER CHANGES AND RELEASE TO MANUFACTURING. - ALL LINES<br>"
-    SelectedOption = IIf(ChangeOrderForm.NotApprovedButton.Value, "<u>XX</u> ", "__ ")
-    HTMLString = HTMLString & SelectedOption & "NOT APPROVED, MAKE CUSTOMER CHANGES AND ISSUE NEW APPROVALS.<br>"
-    SelectedOption = IIf(ChangeOrderForm.NotReceivedButton.Value, "<u>XX</u> ", "__ ")
-    HTMLString = HTMLString & SelectedOption & "NOT RECEIVED.<br>"
-    SelectedOption = IIf(ChangeOrderForm.NotRequiredButton.Value, "<u>XX</u> ", "__ ")
-    HTMLString = HTMLString & SelectedOption & "NOT REQUIRED.<br>"
-    SelectedOption = IIf(ChangeOrderForm.ReceivedButton.Value, "<u>XX</u> ", "__ ")
-    HTMLString = HTMLString & SelectedOption & "ALREADY RECD - ACTION ALREADY TAKEN"
+    'Selected option shows as underlined XX, others as a blank line
+    AddHtmlToken tokens, "NoChanges", IIf(ChangeOrderForm.NoChangesButton.Value, "<u>XX</u>", "__")
+    AddHtmlToken tokens, "NoteRelease", IIf(ChangeOrderForm.NoteReleaseButton.Value, "<u>XX</u>", "__")
+    AddHtmlToken tokens, "NotApproved", IIf(ChangeOrderForm.NotApprovedButton.Value, "<u>XX</u>", "__")
+    AddHtmlToken tokens, "NotReceived", IIf(ChangeOrderForm.NotReceivedButton.Value, "<u>XX</u>", "__")
+    AddHtmlToken tokens, "NotRequired", IIf(ChangeOrderForm.NotRequiredButton.Value, "<u>XX</u>", "__")
+    AddHtmlToken tokens, "AlreadyReceived", IIf(ChangeOrderForm.ReceivedButton.Value, "<u>XX</u>", "__")
+    
+    Dim emailSubject As String
+    HTMLString = RenderTemplate(TEMPLATE_CHANGE_ORDER, tokens, emailSubject)
     
     With OutMail
         .Display
@@ -360,7 +342,7 @@ Public Sub ChangeOrderEmail()
     On Error Resume Next
     With OutMail
         .To = ENGINEERING_CLERK_EMAIL
-        .Subject = EngineeringType & "CHANGE ORDER: " & UserForm1.orderNumber & " - " & UserForm1.CustomerName
+        .Subject = emailSubject
         .BodyFormat = olFormatHTML
         .HTMLBody = "<html><body>" & HTMLString & "<br>" & Signature & "</body></html>"
     End With
@@ -601,63 +583,49 @@ Sub DashboardEmail()
     Set OutApp = CreateObject("Outlook.Application")
     Set OutMail = OutApp.CreateItem(0)
 
-    'Greetings
-    BuildHTML = vbNullString
-    BuildHTML = "<BASEFONT FACE='Calibri, arial, MS Sans Serif'>"
-    BuildHTML = BuildHTML & "Hello " & ManagerName & ","
-    
-    'This Week
-    BuildHTML = BuildHTML & "<BR><BR>"
-    BuildHTML = BuildHTML & "&emsp;<b><u>This Week</u>:</b><ul>"
+    'This week: orders with their notes, built from the Weekly_Notes sheet
+    Dim thisWeekHtml As String: thisWeekHtml = "<ul>"
     lastRow = WeeklyNotesWS.Cells(Rows.Count, 6).End(xlUp).Row
     'Order Number
     For index = 9 To lastRow
         If WeeklyNotesWS.Cells(index, 4).Value <> vbNullString Then
             If index <> 9 Then
-                BuildHTML = BuildHTML & "</ul><BR>"
+                thisWeekHtml = thisWeekHtml & "</ul><BR>"
             End If
-            BuildHTML = BuildHTML & "<li style=margin-top:0px;margin-bottom:0px><b>" & WeeklyNotesWS.Cells(index, 4).Value & ":</b> " & WeeklyNotesWS.Cells(index, 5).Value & "</li>"
+            thisWeekHtml = thisWeekHtml & "<li style=margin-top:0px;margin-bottom:0px><b>" & HtmlEscape(CStr(WeeklyNotesWS.Cells(index, 4).Value)) & ":</b> " & HtmlEscape(CStr(WeeklyNotesWS.Cells(index, 5).Value)) & "</li>"
             'Order Notes
-            BuildHTML = BuildHTML & "<ul><li style=margin-top:0px;margin-bottom:0px>[" & WeeklyNotesWS.Cells(index, 6).Value & "] " & WeeklyNotesWS.Cells(index, 29).Value & "</li>"
+            thisWeekHtml = thisWeekHtml & "<ul><li style=margin-top:0px;margin-bottom:0px>[" & HtmlEscape(CStr(WeeklyNotesWS.Cells(index, 6).Value)) & "] " & HtmlEscape(CStr(WeeklyNotesWS.Cells(index, 29).Value)) & "</li>"
         Else
             'Order Notes
-            BuildHTML = BuildHTML & "<li style=margin-top:0px;margin-bottom:0px>[" & WeeklyNotesWS.Cells(index, 6).Value & "] " & WeeklyNotesWS.Cells(index, 29).Value & "</li>"
+            thisWeekHtml = thisWeekHtml & "<li style=margin-top:0px;margin-bottom:0px>[" & HtmlEscape(CStr(WeeklyNotesWS.Cells(index, 6).Value)) & "] " & HtmlEscape(CStr(WeeklyNotesWS.Cells(index, 29).Value)) & "</li>"
         End If
-           
     Next index
-    BuildHTML = BuildHTML & "</ul></ul>"
-           
-    'Next Week
-    BuildHTML = BuildHTML & "<BR>"
-    BuildHTML = BuildHTML & "&emsp;<b><u>Next Week</u>:</b><ul>"
+    thisWeekHtml = thisWeekHtml & "</ul></ul>"
+    
+    'Next week: open orders on the schedule
+    Dim nextWeekHtml As String: nextWeekHtml = "<ul>"
     lastRow = ScheduleWS.Cells(Rows.Count, 2).End(xlUp).Row
     If lastRow > 59 Then lastRow = 59
-    If lastRow < 4 Then
-    End If
     For index = 4 To lastRow
         If (UCase(ScheduleWS.Cells(index, 13).Value) = "WAITING FOR CUSTOMER APPROVAL") Or (UCase(ScheduleWS.Cells(index, 13).Value) = "HOLD") Or (UCase(ScheduleWS.Cells(index, 13).Value) = "IN QUEUE") _
         Or (UCase(ScheduleWS.Cells(index, 13).Value) = "IN DESIGN") Or (UCase(ScheduleWS.Cells(index, 13).Value) = "CHECKING") Or (UCase(ScheduleWS.Cells(index, 13).Value) = "WORKING ON PRODUCTION RELEASE") _
         Or (UCase(ScheduleWS.Cells(index, 13).Value) = "CHANGE ORDER") Or (UCase(ScheduleWS.Cells(index, 13).Value) = "OTHER") Then
-            BuildHTML = BuildHTML & "<li style=margin-top:0px;margin-bottom:0px><b>" & ScheduleWS.Cells(index, 2).Value & ":</b> " & ScheduleWS.Cells(index, 3).Value & " (" & ScheduleWS.Cells(index, 13).Value & ")</li>"
+            nextWeekHtml = nextWeekHtml & "<li style=margin-top:0px;margin-bottom:0px><b>" & HtmlEscape(CStr(ScheduleWS.Cells(index, 2).Value)) & ":</b> " & HtmlEscape(CStr(ScheduleWS.Cells(index, 3).Value)) & " (" & HtmlEscape(CStr(ScheduleWS.Cells(index, 13).Value)) & ")</li>"
         End If
     Next index
-    BuildHTML = BuildHTML & "</ul>"
+    nextWeekHtml = nextWeekHtml & "</ul>"
     
-    'Travel/PTO
-    BuildHTML = BuildHTML & "<BR>"
-    BuildHTML = BuildHTML & "&emsp;<b><u>Travel/PTO</u>:</b>"
-    BuildHTML = BuildHTML & "<ul><li style=margin-top:0px;margin-bottom:0px>Travel: None</li>"
-    BuildHTML = BuildHTML & "<li style=margin-top:0px;margin-bottom:0px>PTO: None</li></ul>"
+    'Build the body and subject from the Email_Templates sheet (EmailTemplates.bas)
+    Dim tokens As Object: Set tokens = NewTokens()
+    AddToken tokens, "ManagerName", ManagerName
+    AddToken tokens, "WeekLabel", CStr(WeeklyNotesWS.Cells(3, 3).Value)
+    AddToken tokens, "StartDate", CStr(EndSpan)
+    AddToken tokens, "EndDate", CStr(Date)
+    AddHtmlToken tokens, "ThisWeek", thisWeekHtml
+    AddHtmlToken tokens, "NextWeek", nextWeekHtml
     
-    'Concerns
-    BuildHTML = BuildHTML & "<BR>"
-    BuildHTML = BuildHTML & "&emsp;<b><u>Concerns</u>:</b>"
-    BuildHTML = BuildHTML & "<ul><li style=margin-top:0px;margin-bottom:0px>None</li></ul>"
-    
-    'Crisis
-    BuildHTML = BuildHTML & "<BR>"
-    BuildHTML = BuildHTML & "&emsp;<b><u>Crisis</u>:</b>"
-    BuildHTML = BuildHTML & "<ul><li style=margin-top:0px;margin-bottom:0px>None</li></ul>"
+    Dim emailSubject As String
+    BuildHTML = RenderTemplate(TEMPLATE_DASHBOARD, tokens, emailSubject)
     
     With OutMail
         .Display
@@ -672,7 +640,7 @@ Sub DashboardEmail()
         .To = ManagerEmail
         .CC = "brian.schmoldt@ktron.com"
         .BCC = vbNullString
-        .Subject = "Dashboard: " & WeeklyNotesWS.Cells(3, 3).Value & " (" & EndSpan & " - " & Date & ")"
+        .Subject = emailSubject
         '.Body = strbody
         .HTMLBody = "<html><body>" & BuildHTML & "<br>" & Signature & "</body></html>"
         'You can add a file like this

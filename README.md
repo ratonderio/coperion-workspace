@@ -113,7 +113,9 @@ and the sheet layout.
   Body rows are joined in order; use `<BR>` for a visible line break.
 - Placeholders are plain text, e.g. `{OrderNumber}`; optional blocks are wrapped in
   `[[IF Reminder]] ... [[/IF]]`. Each email's placeholders are listed on the sheet.
-- Converted so far: the approval email ("Approval Email").
+- Emails on the sheet: Approval, Certified, Production Release, Change Order and Dashboard. For the
+  dashboard, the two order lists are still generated in code (`{ThisWeek}`, `{NextWeek}`); the
+  greeting, headings and the Travel/PTO, Concerns and Crisis sections are editable.
 - Known limitation: VBA-created emails need classic Outlook. The new Outlook does not
   support VBA/COM automation.
 
