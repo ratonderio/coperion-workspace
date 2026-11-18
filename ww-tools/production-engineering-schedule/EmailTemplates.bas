@@ -3,32 +3,36 @@ Option Explicit
 '@IgnoreModule ProcedureNotUsed
 '@Folder "Modules"
 '
-' Editable email templates.
+' Editable email templates, stored on a worksheet (TEMPLATE_SHEET) in this workbook.
 '
-' Each email can be backed by an Outlook template (.oft) in CPE_Schedule\Templates (see TemplateFolder). Anyone
-' can change the wording by editing that file in Outlook (see EditTemplate), with no
-' VBA changes. The built-in default text below is the fallback, and is also what
-' RestoreDefaultTemplate writes back out, so there is one source of truth.
+' Sheet layout (one row per line):
+'   Column A  Email name (for example "Approval Email")
+'   Column B  "Subject" (one row per email) or "Body" (one row per line of HTML)
+'   Column C  The text. Body lines are joined in order; line breaks between rows are
+'             ignored by email, so use <BR> for a visible line break.
 '
-' Template syntax (plain text typed into the email):
+' Placeholders in the text:
 '   {Token}                     replaced with the value for the order, e.g. {OrderNumber}
 '   [[IF Name]] ... [[/IF]]     kept only when the flag Name is on, otherwise removed
 '
-' Do not put your own signature in a template; the sender's signature is added
-' automatically when the email is created.
+' The built-in defaults at the bottom of this module are used to create the sheet the first
+' time, to add any email that is missing from it, and by RestoreTemplate.
 
-'The CPE_Schedule folder comes from the "CPE Tools" setting that WW_User saves on every
-'workbook open (WW_User.m_CPE_Tools); this is only used if that setting is missing.
-Private Const CPE_TOOLS_FALLBACK As String = "\\cop.hi.corp\fileserver\CFE\CPS\WWQ-FS01\orders\Common Files\CPE_Schedule\"
-Private Const TEMPLATE_SUBFOLDER As String = "Templates\"
+Public Const TEMPLATE_SHEET As String = "Email_Templates"
 
-Public Const TEMPLATE_APPROVAL As String = "ApprovalEmail"
+Public Const TEMPLATE_APPROVAL As String = "Approval Email"
 
-Private Const OL_TEMPLATE As Long = 5
-Private Const OL_DISCARD As Long = 1
-Private Const OL_FORMAT_HTML As Long = 2
+Private Const COL_NAME As Long = 1
+Private Const COL_PART As Long = 2
+Private Const COL_TEXT As Long = 3
+Private Const COL_HELP_NAME As Long = 5
+Private Const COL_HELP_TOKEN As Long = 6
+Private Const COL_HELP_TEXT As Long = 7
+Private Const HEADER_ROW As Long = 3
+Private Const FIRST_DATA_ROW As Long = 4
 
-Private m_Editors As Collection
+Private Const PART_SUBJECT As String = "Subject"
+Private Const PART_BODY As String = "Body"
 
 ' ---------------------------------------------------------------------------
 ' Tokens
@@ -61,39 +65,10 @@ End Function
 ' Rendering
 ' ---------------------------------------------------------------------------
 
-'Returns the finished HTML body and sets emailSubject. Uses the .oft when it exists
-'and can be read, otherwise the built-in default.
+'Returns the finished HTML body and sets emailSubject, using the text on the template sheet.
 Public Function RenderTemplate(ByVal templateName As String, ByVal tokens As Object, ByRef emailSubject As String) As String
-    Dim html As String: html = DefaultBody(templateName)
-    emailSubject = DefaultSubject(templateName)
-
-    Dim path As String: path = TemplatePath(templateName)
-    Dim readFailed As Boolean
-
-    On Error Resume Next
-    Dim exists As Boolean: exists = (Len(Dir(path)) > 0)
-    If Err.Number <> 0 Then readFailed = True: Err.Clear
-    On Error GoTo 0
-
-    If exists Then
-        On Error Resume Next
-        Dim app As Object: Set app = CreateObject("Outlook.Application")
-        Dim tmpl As Object: Set tmpl = OpenTemplateItem(app, path)
-        If Err.Number = 0 And Not tmpl Is Nothing Then
-            If Len(tmpl.HTMLBody) > 0 Then html = tmpl.HTMLBody Else readFailed = True
-            If Len(tmpl.Subject) > 0 Then emailSubject = tmpl.Subject
-            tmpl.Close OL_DISCARD
-        Else
-            readFailed = True
-        End If
-        Err.Clear
-        On Error GoTo 0
-    End If
-
-    If readFailed Then
-        MsgBox "Could not read the email template:" & vbCr & path & vbCr & vbCr & _
-               "The built-in default wording will be used instead.", vbExclamation, "Email template"
-    End If
+    Dim html As String
+    ReadTemplate templateName, html, emailSubject
 
     html = ApplyConditionals(html, tokens)
 
@@ -140,155 +115,187 @@ Private Sub WarnAboutLeftoverTokens(ByVal text As String, ByVal templateName As 
     For i = 0 To ms.Count - 1
         If InStr(found, ms(i).Value) = 0 Then found = found & vbCr & "  " & ms(i).Value
     Next i
-    MsgBox "The " & templateName & " template has placeholders that were not recognized:" & found & vbCr & vbCr & _
-           "Check the spelling in the template. The email was still created.", vbExclamation, "Email template"
+    MsgBox "The """ & templateName & """ template has placeholders that were not recognized:" & found & vbCr & vbCr & _
+           "Check the spelling on the " & TEMPLATE_SHEET & " sheet. The email was still created.", vbExclamation, "Email template"
 End Sub
 
 ' ---------------------------------------------------------------------------
-' Editing
+' Template sheet
 ' ---------------------------------------------------------------------------
 
-Public Sub EditApprovalTemplate()
-    EditTemplate TEMPLATE_APPROVAL
+'Shows the template sheet (assign to a button).
+Public Sub ShowEmailTemplates()
+    TemplateSheet().Activate
 End Sub
 
 Public Sub RestoreApprovalTemplate()
-    RestoreDefaultTemplate TEMPLATE_APPROVAL
+    RestoreTemplate TEMPLATE_APPROVAL
 End Sub
 
-'Opens the template for editing. Closing the window and answering Yes to the save
-'prompt writes the changes back to the .oft (see TemplateEditor). If that does not
-'happen, use File > Save As > Outlook Template and overwrite the same file.
-Public Sub EditTemplate(ByVal templateName As String)
-    Dim path As String: path = TemplatePath(templateName)
-    If Not TemplateExists(path) Then RestoreDefaultTemplate templateName, True
+'Replaces one email's rows on the sheet with the built-in default wording.
+Public Sub RestoreTemplate(ByVal templateName As String)
+    If MsgBox("Replace the """ & templateName & """ rows on the " & TEMPLATE_SHEET & " sheet with the original wording?" & vbCr & vbCr & _
+              "Any edits to that email will be lost.", vbYesNo + vbQuestion, "Restore default template") <> vbYes Then Exit Sub
 
-    Dim app As Object: Set app = CreateObject("Outlook.Application")
-    Dim item As Object
-    On Error Resume Next
-    Set item = OpenTemplateItem(app, path)
-    If Err.Number <> 0 Then
-        Dim openError As String: openError = "Error " & Err.Number & ": " & Err.Description
-        Err.Clear
-        On Error GoTo 0
-        If MsgBox("Outlook could not open the template:" & vbCr & path & vbCr & vbCr & openError & vbCr & vbCr & _
-                  "The file may be damaged. Replace it with the original wording and open that?", vbYesNo + vbExclamation, "Edit template") <> vbYes Then Exit Sub
-        RestoreDefaultTemplate templateName, True
-        Set item = OpenTemplateItem(app, path)
-    End If
-    On Error GoTo 0
+    Dim ws As Worksheet: Set ws = TemplateSheet()
+    Dim firstRow As Long: firstRow = FirstRowOf(ws, templateName)
 
-    Dim editor As TemplateEditor: Set editor = New TemplateEditor
-    editor.Attach item, path
-    If m_Editors Is Nothing Then Set m_Editors = New Collection
-    m_Editors.Add editor, CStr(ObjPtr(editor))
-
-    item.Display
-End Sub
-
-'Writes the built-in default out as the .oft, replacing any existing file.
-Public Sub RestoreDefaultTemplate(ByVal templateName As String, Optional ByVal silent As Boolean = False)
-    Dim path As String: path = TemplatePath(templateName)
-    If Not silent Then
-        If MsgBox("Replace the " & templateName & " template with the original wording?" & vbCr & vbCr & _
-                  "Any edits to " & path & " will be lost.", vbYesNo + vbQuestion, "Restore default template") <> vbYes Then Exit Sub
+    If firstRow > 0 Then
+        Dim r As Long
+        For r = LastDataRow(ws) To firstRow Step -1
+            If SameName(ws.Cells(r, COL_NAME).Value, templateName) Then ws.Rows(r).Delete
+        Next r
+    Else
+        firstRow = LastDataRow(ws) + 1
     End If
 
-    EnsureTemplateFolder
-
-    Dim app As Object: Set app = CreateObject("Outlook.Application")
-    Dim mail As Object: Set mail = app.CreateItem(0)
-    mail.BodyFormat = OL_FORMAT_HTML
-    mail.Subject = DefaultSubject(templateName)
-    mail.HTMLBody = "<html><body>" & DefaultBody(templateName) & "</body></html>"
-    SaveTemplateFile mail, path
-    mail.Close OL_DISCARD
-
-    If Not silent Then MsgBox "Template restored:" & vbCr & path, vbInformation, "Restore default template"
+    Dim needed As Long: needed = DefaultLines(templateName).Count + 1
+    ws.Rows(firstRow & ":" & (firstRow + needed - 1)).Insert
+    WriteTemplateRows ws, templateName, firstRow
+    MsgBox """" & templateName & """ restored.", vbInformation, "Restore default template"
 End Sub
 
-Public Sub ReleaseEditor(ByVal editor As TemplateEditor)
+'Returns the template worksheet, creating it (and its default content) if it is missing.
+Private Function TemplateSheet() As Worksheet
+    Dim ws As Worksheet
     On Error Resume Next
-    m_Editors.Remove CStr(ObjPtr(editor))
-End Sub
-
-' ---------------------------------------------------------------------------
-' Files
-' ---------------------------------------------------------------------------
-
-'Saves the item as an .oft at destPath. Outlook's SaveAs is unreliable when it writes
-'straight to a network share, so save locally and copy; a copy failure then names the
-'real problem (missing folder, no write permission, file locked) instead of an Outlook error.
-Public Sub SaveTemplateFile(ByVal item As Object, ByVal destPath As String)
-    Dim tmpPath As String
-    tmpPath = Environ$("TEMP") & "\" & Mid$(destPath, InStrRev(destPath, "\") + 1)
-    Dim stage As String
-
-    On Error Resume Next
-    Kill tmpPath
-    On Error GoTo Fail
-
-    stage = "saving a temporary copy to " & tmpPath
-    item.SaveAs tmpPath, OL_TEMPLATE
-
-    stage = "copying the template to " & destPath & " (check that the folder exists and you have write access, and that nobody has the file open)"
-    FileCopy tmpPath, destPath
-
-    On Error Resume Next
-    Kill tmpPath
-    Exit Sub
-
-Fail:
-    Dim msg As String: msg = "Error " & Err.Number & " while " & stage & vbCr & vbCr & Err.Description
-    On Error Resume Next
-    Kill tmpPath
-    Err.Raise vbObjectError + 513, "EmailTemplates.SaveTemplateFile", msg
-End Sub
-
-'Opens a new item from the .oft. Outlook can fail (access denied) opening a template
-'directly from a network path, so open a local copy instead. A failed copy raises a
-'plain error naming the file.
-Private Function OpenTemplateItem(ByVal app As Object, ByVal path As String) As Object
-    Dim tmpPath As String
-    tmpPath = Environ$("TEMP") & "\open_" & Mid$(path, InStrRev(path, "\") + 1)
-
-    On Error Resume Next
-    Kill tmpPath
+    Set ws = ThisWorkbook.Worksheets(TEMPLATE_SHEET)
     On Error GoTo 0
 
-    FileCopy path, tmpPath
+    If ws Is Nothing Then
+        Dim previous As Object: Set previous = ActiveSheet
+        Dim screenUpdating As Boolean: screenUpdating = Application.ScreenUpdating
+        Application.ScreenUpdating = False
 
-    Set OpenTemplateItem = app.CreateItemFromTemplate(tmpPath)
+        Set ws = ThisWorkbook.Worksheets.Add(After:=ThisWorkbook.Worksheets(ThisWorkbook.Worksheets.Count))
+        ws.Name = TEMPLATE_SHEET
+        BuildSheetHeader ws
 
-    On Error Resume Next
-    Kill tmpPath
+        If Not previous Is Nothing Then previous.Activate
+        Application.ScreenUpdating = screenUpdating
+    End If
+    Set TemplateSheet = ws
 End Function
 
-Private Function TemplateFolder() As String
-    Dim base As String
-    base = GetSetting("WW_Tools", "Directories", "CPE Tools", CPE_TOOLS_FALLBACK)
-    If Len(base) = 0 Then base = CPE_TOOLS_FALLBACK
-    If Right$(base, 1) <> "\" Then base = base & "\"
-    TemplateFolder = base & TEMPLATE_SUBFOLDER
-End Function
+Private Sub BuildSheetHeader(ByVal ws As Worksheet)
+    ws.Columns(COL_TEXT).NumberFormat = "@"
+    ws.Cells(1, COL_NAME).Value = "Email templates"
+    ws.Cells(1, COL_NAME).Font.Bold = True
+    ws.Cells(1, COL_NAME).Font.Size = 14
+    ws.Cells(2, COL_NAME).Value = "Edit the text in column C. Body lines are joined in order; line breaks between rows are ignored, so use <BR> for a new line. " & _
+                                  "Do not change columns A and B. Placeholders such as {OrderNumber} are listed on the right."
 
-Private Function TemplatePath(ByVal templateName As String) As String
-    TemplatePath = TemplateFolder() & templateName & ".oft"
-End Function
+    ws.Cells(HEADER_ROW, COL_NAME).Value = "Email"
+    ws.Cells(HEADER_ROW, COL_PART).Value = "Part"
+    ws.Cells(HEADER_ROW, COL_TEXT).Value = "Text (HTML)"
+    ws.Cells(HEADER_ROW, COL_HELP_NAME).Value = "Email"
+    ws.Cells(HEADER_ROW, COL_HELP_TOKEN).Value = "Placeholder"
+    ws.Cells(HEADER_ROW, COL_HELP_TEXT).Value = "Meaning"
+    ws.Range(ws.Cells(HEADER_ROW, COL_NAME), ws.Cells(HEADER_ROW, COL_TEXT)).Font.Bold = True
+    ws.Range(ws.Cells(HEADER_ROW, COL_HELP_NAME), ws.Cells(HEADER_ROW, COL_HELP_TEXT)).Font.Bold = True
 
-Private Function TemplateExists(ByVal path As String) As Boolean
-    On Error Resume Next
-    TemplateExists = (Len(Dir(path)) > 0)
-    If TemplateExists Then TemplateExists = (FileLen(path) > 0)
-End Function
-
-Private Sub EnsureTemplateFolder()
-    Dim folder As String: folder = TemplateFolder()
-    If Len(Dir(folder, vbDirectory)) = 0 Then MkDir Left$(folder, Len(folder) - 1)
+    ws.Columns(COL_NAME).ColumnWidth = 20
+    ws.Columns(COL_PART).ColumnWidth = 9
+    ws.Columns(COL_TEXT).ColumnWidth = 130
+    ws.Columns(4).ColumnWidth = 3
+    ws.Columns(COL_HELP_NAME).ColumnWidth = 20
+    ws.Columns(COL_HELP_TOKEN).ColumnWidth = 22
+    ws.Columns(COL_HELP_TEXT).ColumnWidth = 60
 End Sub
 
+Private Function LastDataRow(ByVal ws As Worksheet) As Long
+    LastDataRow = ws.Cells(ws.Rows.Count, COL_NAME).End(xlUp).Row
+    If LastDataRow < HEADER_ROW Then LastDataRow = HEADER_ROW
+End Function
+
+Private Function SameName(ByVal a As Variant, ByVal b As String) As Boolean
+    SameName = (StrComp(Trim$(CStr(a)), b, vbTextCompare) = 0)
+End Function
+
+Private Function FirstRowOf(ByVal ws As Worksheet, ByVal templateName As String) As Long
+    Dim r As Long
+    For r = FIRST_DATA_ROW To LastDataRow(ws)
+        If SameName(ws.Cells(r, COL_NAME).Value, templateName) Then FirstRowOf = r: Exit Function
+    Next r
+End Function
+
+'Writes the Subject row and Body rows for one email starting at startRow (rows must be empty).
+Private Sub WriteTemplateRows(ByVal ws As Worksheet, ByVal templateName As String, ByVal startRow As Long)
+    Dim r As Long: r = startRow
+    ws.Cells(r, COL_NAME).Value = templateName
+    ws.Cells(r, COL_PART).Value = PART_SUBJECT
+    ws.Cells(r, COL_TEXT).Value = DefaultSubject(templateName)
+
+    Dim line As Variant
+    For Each line In DefaultLines(templateName)
+        r = r + 1
+        ws.Cells(r, COL_NAME).Value = templateName
+        ws.Cells(r, COL_PART).Value = PART_BODY
+        ws.Cells(r, COL_TEXT).Value = CStr(line)
+    Next line
+
+    WriteHelp ws, templateName
+End Sub
+
+Private Sub WriteHelp(ByVal ws As Worksheet, ByVal templateName As String)
+    Dim r As Long
+    For r = FIRST_DATA_ROW To ws.Cells(ws.Rows.Count, COL_HELP_NAME).End(xlUp).Row
+        If SameName(ws.Cells(r, COL_HELP_NAME).Value, templateName) Then Exit Sub
+    Next r
+
+    Dim nextRow As Long: nextRow = ws.Cells(ws.Rows.Count, COL_HELP_NAME).End(xlUp).Row + 1
+    If nextRow < FIRST_DATA_ROW Then nextRow = FIRST_DATA_ROW
+
+    Dim item As Variant, parts() As String
+    For Each item In DefaultHelp(templateName)
+        parts = Split(CStr(item), "|")
+        ws.Cells(nextRow, COL_HELP_NAME).Value = templateName
+        ws.Cells(nextRow, COL_HELP_TOKEN).Value = "'" & parts(0)
+        ws.Cells(nextRow, COL_HELP_TEXT).Value = parts(1)
+        nextRow = nextRow + 1
+    Next item
+End Sub
+
+'Reads the Subject and Body for an email from the sheet, adding the default rows first if
+'the email is not on the sheet yet.
+Private Sub ReadTemplate(ByVal templateName As String, ByRef body As String, ByRef subject As String)
+    Dim ws As Worksheet: Set ws = TemplateSheet()
+
+    If FirstRowOf(ws, templateName) = 0 Then WriteTemplateRows ws, templateName, LastDataRow(ws) + 1
+
+    Dim r As Long, part As String, text As String
+    body = vbNullString
+    subject = vbNullString
+    For r = FIRST_DATA_ROW To LastDataRow(ws)
+        If SameName(ws.Cells(r, COL_NAME).Value, templateName) Then
+            part = Trim$(CStr(ws.Cells(r, COL_PART).Value))
+            text = CStr(ws.Cells(r, COL_TEXT).Value)
+            If StrComp(part, PART_SUBJECT, vbTextCompare) = 0 Then
+                subject = text
+            ElseIf StrComp(part, PART_BODY, vbTextCompare) = 0 And Len(text) > 0 Then
+                If Len(body) > 0 Then body = body & vbCrLf
+                body = body & text
+            End If
+        End If
+    Next r
+
+    'A blank body or subject would send an empty email, so fall back to the default
+    If Len(Trim$(body)) = 0 Then body = Join(CollectionToArray(DefaultLines(templateName)), vbCrLf)
+    If Len(Trim$(subject)) = 0 Then subject = DefaultSubject(templateName)
+End Sub
+
+Private Function CollectionToArray(ByVal c As Collection) As Variant
+    Dim a() As String
+    ReDim a(0 To c.Count - 1)
+    Dim i As Long
+    For i = 1 To c.Count
+        a(i - 1) = c(i)
+    Next i
+    CollectionToArray = a
+End Function
+
 ' ---------------------------------------------------------------------------
-' Built-in defaults (fallback, and the source for Restore default)
+' Built-in defaults (used to create the sheet, fill in a missing email, and Restore)
 ' ---------------------------------------------------------------------------
 
 Private Function DefaultSubject(ByVal templateName As String) As String
@@ -298,42 +305,56 @@ Private Function DefaultSubject(ByVal templateName As String) As String
     End Select
 End Function
 
-Private Function DefaultBody(ByVal templateName As String) As String
+Private Function DefaultLines(ByVal templateName As String) As Collection
     Select Case templateName
         Case TEMPLATE_APPROVAL
-            DefaultBody = DefaultApprovalBody()
+            Set DefaultLines = ApprovalLines()
+        Case Else
+            Set DefaultLines = New Collection
     End Select
 End Function
 
-'Tokens: {OrderNumber} {ShipTo} {PONumber} {EngType} {EngTypeLower} {OtherEngTypeLower} {LastUpdate}
-'Flags:  Reminder (follow-up email)
-Private Function DefaultApprovalBody() As String
-    Dim s As String
+Private Function DefaultHelp(ByVal templateName As String) As Variant
+    Select Case templateName
+        Case TEMPLATE_APPROVAL
+            DefaultHelp = Array( _
+                "{OrderNumber}|The order number", _
+                "{ShipTo}|The customer name", _
+                "{PONumber}|The customer PO number", _
+                "{EngType}|Electrical or Mechanical (for this engineer)", _
+                "{EngTypeLower}|electrical or mechanical, lowercase", _
+                "{OtherEngType}|The other discipline (Electrical or Mechanical)", _
+                "{OtherEngTypeLower}|The other discipline, lowercase", _
+                "{LastUpdate}|Date the approvals were last sent (reminders)", _
+                "[[IF Reminder]]...[[/IF]]|Only kept when this is a reminder / follow-up email")
+        Case Else
+            DefaultHelp = Array()
+    End Select
+End Function
 
-    s = "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, &amp; DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
-    s = s & "<b>K-Tron Equipment Order:</b> {OrderNumber}<BR>"
-    s = s & "<b>Ship To:</b> {ShipTo}<BR>"
-    s = s & "<b>Current Status:</b> Out for Approval Hold<BR><BR>"
+Private Sub AddLine(ByVal lines As Collection, ByVal text As String)
+    lines.Add text
+End Sub
 
-    s = s & "Hello,<BR><BR>"
+Private Function ApprovalLines() As Collection
+    Dim c As New Collection
 
-    s = s & "[[IF Reminder]]I am following up on the drawing approvals I last sent on {LastUpdate}.  " & _
-            "Please let me know if there are any additional questions or concerns.<br><br><hr><br>[[/IF]]"
+    AddLine c, "<strong><span style='color: red;'>ATTACH CUSTOMER TRANSMITTAL, DRAWINGS PDF, &amp; DRAWING FILES AS A ZIP FILE AND DELETE THIS LINE.</span></strong><br>"
+    AddLine c, "<b>K-Tron Equipment Order:</b> {OrderNumber}<BR>"
+    AddLine c, "<b>Ship To:</b> {ShipTo}<BR>"
+    AddLine c, "<b>Current Status:</b> Out for Approval Hold<BR><BR>"
+    AddLine c, "Hello,<BR><BR>"
+    AddLine c, "[[IF Reminder]]I am following up on the drawing approvals I last sent on {LastUpdate}.  Please let me know if there are any additional questions or concerns.<br><br><hr><br>[[/IF]]"
+    AddLine c, "The {EngTypeLower} approval documents and drawings for your equipment order are ready and attached to this email.<BR>"
+    AddLine c, "Please review them and reply with any required changes. (See markup guidelines below.)<BR>"
+    AddLine c, "Please note that this email only covers your {EngTypeLower} drawings. You will receive a separate email for your {OtherEngTypeLower} approval documents.<BR><BR>"
+    AddLine c, "<b>Project Status &amp; Next Steps</b>"
+    AddLine c, "<ul>"
+    AddLine c, "<li><b>Current Hold:</b> This order is currently on an <b>Out for Approval Hold</b> and is not yet scheduled for shipment. K-Tron will assign an official ship date once the approval process is complete.</li>"
+    AddLine c, "<li><b>Change Policy:</b> Any modifications to equipment design or configuration during this review may impact your final ship date and may result in change order fees.</li>"
+    AddLine c, "<li><b>How to Submit Changes:</b> We prefer mark-ups on a PDF or scanned file. However, we also accept direct electronic edits as long as every change is clearly highlighted using revision clouds, distinct markings, and notes.</li>"
+    AddLine c, "</ul>"
+    AddLine c, "If you have questions, comments, or concerns; please do not hesitate to contact me."
 
-    s = s & "The {EngTypeLower} approval documents and drawings for your equipment order are ready and attached to this email.<BR>"
-    s = s & "Please review them and reply with any required changes. (See markup guidelines below.)<BR>"
-    s = s & "Please note that this email only covers your {EngTypeLower} drawings. You will receive a separate email for your " & _
-            "{OtherEngTypeLower} approval documents.<BR><BR>"
-    s = s & "<b>Project Status &amp; Next Steps</b>"
-    s = s & "<ul>"
-    s = s & "<li><b>Current Hold:</b> This order is currently on an <b>Out for Approval Hold</b> and is not yet scheduled for shipment. " & _
-            "K-Tron will assign an official ship date once the approval process is complete.</li>"
-    s = s & "<li><b>Change Policy:</b> Any modifications to equipment design or configuration during this review may impact your final " & _
-            "ship date and may result in change order fees.</li>"
-    s = s & "<li><b>How to Submit Changes:</b> We prefer mark-ups on a PDF or scanned file. However, we also accept direct electronic edits " & _
-            "as long as every change is clearly highlighted using revision clouds, distinct markings, and notes.</li>"
-    s = s & "</ul>"
-    s = s & "If you have questions, comments, or concerns; please do not hesitate to contact me."
-
-    DefaultApprovalBody = s
+    Set ApprovalLines = c
 End Function

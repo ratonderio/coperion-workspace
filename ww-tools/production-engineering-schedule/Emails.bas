@@ -95,13 +95,14 @@ Sub SendApprovalEmail(Optional ByVal hasReminderText As Boolean = False, Optiona
     If Not oRs Is Nothing Then Set oRs = Nothing
     If Not oCon Is Nothing Then Set oCon = Nothing
     
-    'Build the body and subject from the editable template (EmailTemplates.bas)
+    'Build the body and subject from the Email_Templates sheet (EmailTemplates.bas)
     Dim tokens As Object: Set tokens = NewTokens()
     AddToken tokens, "OrderNumber", CStr(Ord)
     AddToken tokens, "ShipTo", CustName
     AddToken tokens, "PONumber", PONum
     AddToken tokens, "EngType", EngType
     AddToken tokens, "EngTypeLower", LCase$(EngType)
+    AddToken tokens, "OtherEngType", OthEngType
     AddToken tokens, "OtherEngTypeLower", LCase$(OthEngType)
     AddToken tokens, "LastUpdate", CStr(lastUpdate)
     SetFlag tokens, "Reminder", hasReminderText
